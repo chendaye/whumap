@@ -10,8 +10,7 @@ import {
   clipboard,
   ipcMain,
   globalShortcut,
-  dialog,
-  systemPreferences
+  dialog
 } from 'electron'
 import db from '../datastore'
 import beforeOpen from './utils/beforeOpen'
@@ -64,23 +63,8 @@ const miniWinURL = process.env.NODE_ENV === 'development'
 
 // fix the $PATH in macOS
 fixPath()
-// 创建菜单（右键小图标显示的菜单）
+// todo:任务栏图标菜单
 function createContextMenu () {
-  // 打开默认图床
-  // const picBeds = getPicBeds(app)
-  // const submenu = picBeds.map(item => {
-  //   return {
-  //     label: item.name,
-  //     type: 'radio',
-  //     checked: db.get('picBed.current') === item.type,
-  //     click () {
-  //       db.set('picBed.current', item.type)
-  //       if (settingWindow) {
-  //         settingWindow.webContents.send('syncPicBed')
-  //       }
-  //     }
-  //   }
-  // })
   contextMenu = Menu.buildFromTemplate([
     {
       label: '关于',
@@ -107,11 +91,6 @@ function createContextMenu () {
         }
       }
     },
-    // {
-    //   label: '选择默认图床',
-    //   type: 'submenu',
-    //   submenu
-    // },
     {
       label: '打开更新助手',
       type: 'checkbox',
@@ -135,42 +114,37 @@ function createContextMenu () {
   ])
 }
 
-// 创建图标
+// todo:创建任务栏图标
 function createTray () {
   const menubarPic = process.platform === 'darwin' ? `${__static}/menubar.png` : `${__static}/menubar-nodarwin.png`
   tray = new Tray(menubarPic)
+  // 右击事件
   tray.on('right-click', () => {
     if (window) {
       window.hide()
     }
+    // 右击菜单
     createContextMenu()
+    // 设置菜单内容
     tray.popUpContextMenu(contextMenu)
   })
+  // 左键点击
   tray.on('click', (event, bounds) => {
+    // 如果是 macOS
     if (process.platform === 'darwin') {
-      let img = clipboard.readImage()
-      let obj = []
-      if (!img.isEmpty()) {
-        // 从剪贴板来的图片默认转为png
-        const imgUrl = 'data:image/png;base64,' + Buffer.from(img.toPNG(), 'binary').toString('base64')
-        obj.push({
-          width: img.getSize().width,
-          height: img.getSize().height,
-          imgUrl
-        })
-      }
-      toggleWindow(bounds)
-      setTimeout(() => {
-        window.webContents.send('clipboardFiles', obj)
-      }, 0)
+      toggleWindow(bounds) // 打开或关闭小窗口
     } else {
+      // 如果是windows
       if (window) {
+        // 隐藏小窗口
         window.hide()
       }
       if (settingWindow === null) {
+        // 如果主窗口不存在就创建一个
         createSettingWindow()
         settingWindow.show()
       } else {
+        // 如果主窗口存在就显示并激活
         settingWindow.show()
         settingWindow.focus()
       }
@@ -179,74 +153,44 @@ function createTray () {
       }
     }
   })
-
-  tray.on('drag-enter', () => {
-    if (systemPreferences.isDarkMode()) {
-      tray.setImage(`${__static}/upload-dark.png`)
-    } else {
-      tray.setImage(`${__static}/upload.png`)
-    }
-  })
-
-  tray.on('drag-end', () => {
-    tray.setImage(`${__static}/menubar.png`)
-  })
-
-  tray.on('drop-files', async (event, files) => {
-    const pasteStyle = db.get('settings.pasteStyle') || 'markdown'
-    const imgs = await new Uploader(files, window.webContents).upload()
-    if (imgs !== false) {
-      for (let i in imgs) {
-        clipboard.writeText(pasteTemplate(pasteStyle, imgs[i]))
-        const notification = new Notification({
-          title: '上传成功',
-          body: imgs[i].imgUrl,
-          icon: files[i]
-        })
-        setTimeout(() => {
-          notification.show()
-        }, i * 100)
-        db.insert('uploaded', imgs[i])
-      }
-      window.webContents.send('dragFiles', imgs)
-    }
-  })
-  // toggleWindow()
 }
 
+// todo:创建BrowserWindow窗口
 const createWindow = () => {
+  // 支持macOS 和 windows
   if (process.platform !== 'darwin' && process.platform !== 'win32') {
     return
   }
   window = new BrowserWindow({
-    height: 350,
-    width: 196, // 196
-    show: false,
-    frame: false,
-    fullscreenable: false,
-    resizable: false,
-    transparent: true,
-    vibrancy: 'ultra-dark',
+    height: 350, // 高
+    width: 196, // 宽
+    show: false, // 创建后是否显示
+    frame: false, // 是否创建frameless窗口。frame这个选项，默认是true。如果选择了false则会创建一个frameless窗口，创建一个没有顶部工具栏、没有border的窗口。这个也是我们在windows系统下自定义顶部栏的基础
+    fullscreenable: false, // 是否允许全屏
+    resizable: false, // 是否允许拉伸大小
+    transparent: true, // 是否是透明窗口（仅macOS）
+    vibrancy: 'ultra-dark', // 窗口模糊的样式（仅macOS）
     webPreferences: {
       nodeIntegration: true,
       nodeIntegrationInWorker: true,
-      backgroundThrottling: false
+      backgroundThrottling: false // 当页面被置于非激活窗口的时候是否停止动画和计时器
     }
   })
-
+  // 窗口页面url
   window.loadURL(winURL)
-
+  // 关闭窗口的回调
   window.on('closed', () => {
     window = null
   })
-
+  // 失去焦点的回调
   window.on('blur', () => {
     window.hide()
   })
   return window
 }
-
+// todo:linux 下的 miniWindow
 const createMiniWidow = () => {
+  // linux 下的mini窗口
   if (miniWindow) {
     return false
   }
@@ -281,6 +225,7 @@ const createMiniWidow = () => {
   return miniWindow
 }
 
+// todo: 主窗口
 const createSettingWindow = () => {
   const options = {
     height: 450,
@@ -290,7 +235,7 @@ const createSettingWindow = () => {
     center: true,
     fullscreenable: false,
     resizable: false,
-    title: 'PicGo',
+    title: 'WhuMap',
     vibrancy: 'ultra-dark',
     transparent: true,
     titleBarStyle: 'hidden',
@@ -308,24 +253,28 @@ const createSettingWindow = () => {
     options.transparent = false
     options.icon = `${__static}/logo.png`
   }
+  // 主窗口实例
   settingWindow = new BrowserWindow(options)
-
+  // 页面url
   settingWindow.loadURL(settingWinURL)
-
+  // 窗口关闭的钩子
   settingWindow.on('closed', () => {
     bus.emit('toggleShortKeyModifiedMode', false)
     settingWindow = null
     if (process.platform === 'linux') {
       process.nextTick(() => {
-        app.quit()
+        app.quit() // 退出
       })
     }
   })
+  // 创建菜单
   createMenu()
+  // 创建mini窗口
   createMiniWidow()
   return settingWindow
 }
 
+// todo: 创建菜单
 const createMenu = () => {
   if (process.env.NODE_ENV !== 'development') {
     const template = [{
