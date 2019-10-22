@@ -274,6 +274,21 @@ const createSettingWindow = () => {
   return settingWindow
 }
 
+const toggleWindow = (bounds) => {
+  if (window.isVisible()) {
+    window.hide()
+  } else {
+    showWindow(bounds)
+  }
+}
+
+const showWindow = (bounds) => {
+  window.setPosition(bounds.x - 98 + 11, bounds.y, false)
+  window.webContents.send('updateFiles')
+  window.show()
+  window.focus()
+}
+
 // todo: 创建菜单
 const createMenu = () => {
   if (process.env.NODE_ENV !== 'development') {
@@ -301,21 +316,8 @@ const createMenu = () => {
   }
 }
 
-const toggleWindow = (bounds) => {
-  if (window.isVisible()) {
-    window.hide()
-  } else {
-    showWindow(bounds)
-  }
-}
-
-const showWindow = (bounds) => {
-  window.setPosition(bounds.x - 98 + 11, bounds.y, false)
-  window.webContents.send('updateFiles')
-  window.show()
-  window.focus()
-}
-
+// ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+// 上传剪切板文件
 const uploadClipboardFiles = async () => {
   let win
   if (miniWindow.isVisible()) {
@@ -350,6 +352,7 @@ const uploadClipboardFiles = async () => {
   }
 }
 
+// 上传选中的文件
 const uploadChoosedFiles = async (webContents, files) => {
   const input = files.map(item => item.path)
   const imgs = await new Uploader(input, webContents).upload()
@@ -377,7 +380,7 @@ const uploadChoosedFiles = async (webContents, files) => {
 }
 
 picgoCoreIPC(app, ipcMain)
-
+// todo:ipcMain 从主进程到渲染进程的异步通信。 ipcMain模块是EventEmitter类的一个实例。 当在主进程中使用时，它处理从渲染器进程（网页）发送出来的异步和同步信息。 从渲染器进程发送的消息将被发送到该模块
 // from macOS tray
 ipcMain.on('uploadClipboardFiles', async (evt, file) => {
   const img = await new Uploader(undefined, window.webContents).upload()

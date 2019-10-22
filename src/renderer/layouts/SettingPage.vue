@@ -2,7 +2,7 @@
   <div id="setting-page">
     <div class="fake-title-bar" :class="{ 'darwin': os === 'darwin' }">
       <div class="fake-title-bar__title">
-        PicGo - {{ version }}
+        WhuMap - {{ version }}
       </div>
       <div class="handle-bar" v-if="os !== 'darwin'">
         <i class="el-icon-minus" @click="minimizeWindow"></i>
@@ -22,37 +22,9 @@
             <i class="el-icon-upload"></i>
             <span slot="title">上传区</span>
           </el-menu-item>
-          <el-menu-item index="gallery">
-            <i class="el-icon-picture"></i>
-            <span slot="title">相册</span>
-          </el-menu-item>
-          <el-submenu
-            index="sub-menu"
-          >
-            <template slot="title">
-              <i class="el-icon-menu"></i>
-              <span>图床设置</span>
-            </template>
-            <template
-              v-for="item in picBed"
-            >
-              <el-menu-item
-                v-if="item.visible"
-                :index="`picbeds-${item.type}`"
-                :key="item.type"
-              >
-                <!-- <i :class="`el-icon-ui-${item.type}`"></i> -->
-                <span slot="title">{{ item.name }}</span>
-              </el-menu-item>
-            </template>
-          </el-submenu>
           <el-menu-item index="setting">
             <i class="el-icon-setting"></i>
             <span slot="title">PicGo设置</span>
-          </el-menu-item>
-          <el-menu-item index="plugin">
-            <i class="el-icon-share"></i>
-            <span slot="title">插件设置</span>
           </el-menu-item>
         </el-menu>
         <i class="el-icon-info setting-window" @click="openDialog"></i>
@@ -73,67 +45,6 @@
         </transition>
       </el-col>
     </el-row>
-    <el-dialog
-      title="赞助PicGo"
-      :visible.sync="visible"
-      width="70%"
-      top="10vh"
-    >
-      PicGo是免费开源的软件，如果你喜欢它，对你有帮助，不妨请我喝杯咖啡？
-      <el-row class="support">
-        <el-col :span="12">
-          <img src="https://user-images.githubusercontent.com/12621342/34188165-e7cdf372-e56f-11e7-8732-1338c88b9bb7.jpg" alt="支付宝">
-          <div class="support-title">支付宝</div>
-        </el-col>
-        <el-col :span="12">
-          <img src="https://user-images.githubusercontent.com/12621342/34188201-212cda84-e570-11e7-9b7a-abb298699d85.jpg" alt="支付宝">
-          <div class="support-title">微信</div>
-        </el-col>
-      </el-row>
-    </el-dialog>
-    <el-dialog
-      title="自定义链接格式"
-      :visible.sync="customLinkVisible"
-    >
-      <el-form
-        label-position="top"
-        :model="customLink"
-        ref="customLink"
-        :rules="rules"
-      >
-        <el-form-item
-          label="用占位符$url来表示url的位置"
-          prop="value"
-        >
-          <el-input 
-            class="align-center"
-            v-model="customLink.value"
-            :autofocus="true"
-          ></el-input>
-        </el-form-item>
-      </el-form>
-      <div>
-        如[]($url)
-      </div>
-      <span slot="footer">
-        <el-button @click="cancelCustomLink">取消</el-button>
-        <el-button type="primary" @click="confirmCustomLink">确定</el-button>
-      </span>
-    </el-dialog>
-    <el-dialog
-      :title="inputBoxOptions.title || '输入框'"
-      :visible.sync="showInputBoxVisible"
-      :modal-append-to-body="false"
-      @close="handleInputBoxClose"
-    >
-      <el-input
-        v-model="inputBoxValue"
-        :placeholder="inputBoxOptions.placeholder"></el-input>
-      <span slot="footer">
-        <el-button @click="showInputBoxVisible = false" round>取消</el-button>
-        <el-button type="primary" @click="showInputBoxVisible = false" round>确定</el-button>
-      </span>
-    </el-dialog>
   </div>
 </template>
 <script>
@@ -227,22 +138,15 @@ export default {
       window.close()
     },
     buildMenu () {
-      const _this = this
       const template = [
         {
           label: '关于',
           click () {
             dialog.showMessageBox({
-              title: 'PicGo',
-              message: 'PicGo',
-              detail: `Version: ${pkg.version}\nAuthor: Molunerfinn\nGithub: https://github.com/Molunerfinn/PicGo`
+              title: 'WhuMap',
+              message: 'WhuMap',
+              detail: `Version: ${pkg.version}\nAuthor: chendaye\nGithub: https://github.com/chendaye/whumap`
             })
-          }
-        },
-        {
-          label: '赞助PicGo',
-          click () {
-            _this.visible = true
           }
         }
       ]
