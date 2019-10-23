@@ -1,16 +1,24 @@
 <template>
-  <div class="app-container">
-    <el-autocomplete
-      v-model="mapLocation.address"
-      :fetch-suggestions="querySearch"
-      placeholder="请输入详细地址"
-      style="width: 100%"
-      :trigger-on-focus="false"
-      @select="handleSelect"
-    />
-    <div style="margin: 5px">
+  <div>
+    <el-row :gutter="20">
+      <el-col :xs="22" :sm="22" :md="22">
+        <el-autocomplete
+        v-model="mapLocation.address"
+        :fetch-suggestions="querySearch"
+        placeholder="请输入详细地址"
+        style="width: 100%"
+        :trigger-on-focus="false"
+        @select="handleSelect"
+      />
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :xs="22" :sm="22" :md="22">
+           <div style="margin: 5px">
       <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
     </div>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
