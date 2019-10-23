@@ -1,87 +1,100 @@
 <template>
-<div>
-  <!-- <baidu-map :center="center" :zoom="zoom" @ready="handler"></baidu-map> -->
-</div>
+    <el-row :gutter="20">
+        <el-col :xs="22" :sm="22" :md="22">
+            <el-autocomplete
+                v-model="mapLocation.address"
+                :fetch-suggestions="querySearch"
+                placeholder="请输入详细地址"
+                style="width: 100%"
+                :trigger-on-focus="false"
+                @select="handleSelect"
+                />
+                <div style="margin: 5px">
+                    <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" @ready="handlerBMap" />
+                </div>
+        </el-col>
+    </el-row>
 </template>
+
 <script>
 export default {
-//   data () {
-//     return {
-//       center: {lng: 0, lat: 0},
-//       zoom: 3
-//     }
-//   },
-//   methods: {
-//     handler ({BMap, map}) {
-//       console.log(BMap, map)
-//       this.center.lng = 116.404
-//       this.center.lat = 39.915
-//       this.zoom = 15
-//     }
-//   }
+  name: 'BaiduMapDemo',
+  data () {
+    return {
+      mapZoom: 15,
+      mapCenter: { lng: 0, lat: 0 },
+      mapLocation: {
+        address: undefined,
+        coordinate: undefined
+      }
+    }
+  },
+  methods: {
+    handlerBMap ({ BMap, map }) {
+      this.BMap = BMap
+      this.map = map
+      if (this.mapLocation.coordinate && this.mapLocation.coordinate.lng) {
+        this.mapCenter.lng = this.mapLocation.coordinate.lng
+        this.mapCenter.lat = this.mapLocation.coordinate.lat
+        this.mapZoom = 15
+        map.addOverlay(new this.BMap.Marker(this.mapLocation.coordinate))
+      } else {
+        this.mapCenter.lng = 113.271429
+        this.mapCenter.lat = 23.135336
+        this.mapZoom = 10
+      }
+    },
+    querySearch (queryString, cb) {
+      var that = this
+      var myGeo = new this.BMap.Geocoder()
+      myGeo.getPoint(queryString, function (point) {
+        if (point) {
+          that.mapLocation.coordinate = point
+          that.makerCenter(point)
+        } else {
+          that.mapLocation.coordinate = null
+        }
+      }, this.locationCity)
+      var options = {
+        onSearchComplete: function (results) {
+          if (local.getStatus() === 0) {
+            // 判断状态是否正确
+            var s = []
+            for (var i = 0; i < results.getCurrentNumPois(); i++) {
+              var x = results.getPoi(i)
+              var item = { value: x.address + x.title, point: x.point }
+              s.push(item)
+              cb(s)
+            }
+          } else {
+            cb()
+          }
+        }
+      }
+      var local = new this.BMap.LocalSearch(this.map, options)
+      local.search(queryString)
+    },
+    handleSelect (item) {
+      var { point } = item
+      this.mapLocation.coordinate = point
+      this.makerCenter(point)
+    },
+    makerCenter (point) {
+      if (this.map) {
+        this.map.clearOverlays()
+        this.map.addOverlay(new this.BMap.Marker(point))
+        this.mapCenter.lng = point.lng
+        this.mapCenter.lat = point.lat
+        this.mapZoom = 15
+      }
+    }
+  }
 }
 </script>
-<style lang='stylus'>
-.view-title
-  color #eee
-  font-size 20px
-  text-align center
-  margin 10px auto
-#upload-view
-  .view-title
-    margin 20px auto
-  #upload-area
-    height 220px
-    border 2px dashed #dddddd
-    border-radius 8px
-    text-align center
-    width 450px
-    margin 0 auto
-    color #dddddd
-    cursor pointer
-    transition all .2s ease-in-out
-    #upload-dragger
-      height 100%
-    &.is-dragover,
-    &:hover
-      border 2px dashed #A4D8FA
-      background-color rgba(164, 216, 250, 0.3)
-      color #fff
-    i
-      font-size 66px
-      margin 50px 0 16px
-      line-height 66px
-    span
-      color #409EFF
-  #file-uploader
-    display none
-  .upload-progress
-    opacity 0
-    transition all .2s ease-in-out
-    width 450px
-    margin 20px auto 0
-    &.show
-      opacity 1
-    .el-progress-bar__inner
-      transition all .2s ease-in-out
-  .paste-style
-    text-align center
-    margin-top 16px
-    &__text
-      font-size 12px
-      color #eeeeee
-      margin-bottom 4px
-  .el-radio-button:first-child
-    .el-radio-button__inner
-      border-left none
-  .el-radio-button:first-child
-    .el-radio-button__inner
-      border-left none
-      border-radius 14px 0 0 14px
-  .el-radio-button:last-child
-    .el-radio-button__inner
-      border-left none
-      border-radius 0 14px 14px 0
-  .paste-upload
-    width 100%
+
+<style>
+.bm-view {
+  width: 100%;
+  height: 500px;
+}
 </style>

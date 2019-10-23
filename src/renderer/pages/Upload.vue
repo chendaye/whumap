@@ -1,238 +1,102 @@
 <template>
-  <div id="upload-view">
-    <el-row :gutter="16">
-      <el-col :span="20" :offset="2">
-        <div class="view-title">
-          图片上传 - {{ picBedName }} <i class="el-icon-caret-bottom" @click="handleChangePicBed"></i>
-        </div>
-        <div
-          id="upload-area"
-          :class="{ 'is-dragover': dragover }"
-          @drop.prevent="onDrop"
-          @dragover.prevent="dragover = true"
-          @dragleave.prevent="dragover = false"
-        >
-          <div id="upload-dragger" @click="openUplodWindow">
-            <i class="el-icon-upload"></i>
-            <div class="upload-dragger__text">
-              将文件拖到此处，或 <span>点击上传</span>
-            </div>
-            <input type="file" id="file-uploader" @change="onChange" multiple>
-          </div>
-        </div>
-        <el-progress 
-          :percentage="progress" 
-          :show-text="false" 
-          class="upload-progress"
-          :class="{ 'show': showProgress }"
-          :status="showError ? 'exception' : 'text'" 
-        ></el-progress>
-        <div class="paste-style">
-          <div class="el-col-16">
-            <div class="paste-style__text">
-              链接格式
-            </div>
-            <el-radio-group v-model="pasteStyle" size="mini"
-              @change="handlePasteStyleChange"
-            >
-              <el-radio-button label="markdown">
-                Markdown
-              </el-radio-button>
-              <el-radio-button label="HTML"></el-radio-button>
-              <el-radio-button label="URL"></el-radio-button>
-              <el-radio-button label="UBB"></el-radio-button>
-              <el-radio-button label="Custom" title="自定义"></el-radio-button>
-            </el-radio-group>
-          </div>
-          <div class="el-col-8">
-            <div class="paste-style__text">
-              快捷上传
-            </div>
-            <el-button type="primary" round size="mini" @click="uploadClipboardFiles" class="paste-upload">剪贴板图片上传</el-button>
-          </div>
-        </div>
-      </el-col>
-    </el-row>
+  <div class="app-container">
+    <el-autocomplete
+      v-model="mapLocation.address"
+      :fetch-suggestions="querySearch"
+      placeholder="请输入详细地址"
+      style="width: 100%"
+      :trigger-on-focus="false"
+      @select="handleSelect"
+    />
+    <div style="margin: 5px">
+      <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
+    </div>
   </div>
 </template>
+
 <script>
+import BaiduMap from 'vue-baidu-map/components/map/Map.vue'
 export default {
-  name: 'upload',
+  name: 'BaiduMapDemo',
+  components: {
+    BaiduMap
+  },
   data () {
     return {
-      dragover: false,
-      progress: 0,
-      showProgress: false,
-      showError: false,
-      pasteStyle: '',
-      picBed: [],
-      picBedName: '',
-      menu: null
-    }
-  },
-  mounted () {
-    this.$electron.ipcRenderer.on('uploadProgress', (event, progress) => {
-      if (progress !== -1) {
-        this.showProgress = true
-        this.progress = progress
-      } else {
-        this.progress = 100
-        this.showError = true
-      }
-    })
-    this.getPasteStyle()
-    this.getDefaultPicBed()
-    this.$electron.ipcRenderer.on('syncPicBed', () => {
-      this.getDefaultPicBed()
-    })
-    this.$electron.ipcRenderer.send('getPicBeds')
-    this.$electron.ipcRenderer.on('getPicBeds', this.getPicBeds)
-  },
-  watch: {
-    progress (val) {
-      if (val === 100) {
-        setTimeout(() => {
-          this.showProgress = false
-          this.showError = false
-        }, 1000)
-        setTimeout(() => {
-          this.progress = 0
-        }, 1200)
+      mapZoom: 15,
+      mapCenter: { lng: 0, lat: 0 },
+      mapLocation: {
+        address: undefined,
+        coordinate: undefined
       }
     }
-  },
-  beforeDestroy () {
-    this.$electron.ipcRenderer.removeAllListeners('uploadProgress')
-    this.$electron.ipcRenderer.removeAllListeners('syncPicBed')
-    this.$electron.ipcRenderer.removeListener('getPicBeds', this.getPicBeds)
   },
   methods: {
-    onDrop (e) {
-      this.dragover = false
-      this.ipcSendFiles(e.dataTransfer.files)
+    handlerBMap ({ BMap, map }) {
+      this.BMap = BMap
+      this.map = map
+      if (this.mapLocation.coordinate && this.mapLocation.coordinate.lng) {
+        this.mapCenter.lng = this.mapLocation.coordinate.lng
+        this.mapCenter.lat = this.mapLocation.coordinate.lat
+        this.mapZoom = 15
+        map.addOverlay(new this.BMap.Marker(this.mapLocation.coordinate))
+      } else {
+        this.mapCenter.lng = 113.271429
+        this.mapCenter.lat = 23.135336
+        this.mapZoom = 10
+      }
     },
-    openUplodWindow () {
-      document.getElementById('file-uploader').click()
-    },
-    onChange (e) {
-      this.ipcSendFiles(e.target.files)
-      document.getElementById('file-uploader').value = ''
-    },
-    ipcSendFiles (files) {
-      let sendFiles = []
-      Array.from(files).forEach((item, index) => {
-        let obj = {
-          name: item.name,
-          path: item.path
+    querySearch (queryString, cb) {
+      var that = this
+      var myGeo = new this.BMap.Geocoder()
+      myGeo.getPoint(queryString, function (point) {
+        if (point) {
+          that.mapLocation.coordinate = point
+          that.makerCenter(point)
+        } else {
+          that.mapLocation.coordinate = null
         }
-        sendFiles.push(obj)
-      })
-      this.$electron.ipcRenderer.send('uploadChoosedFiles', sendFiles)
-    },
-    getPasteStyle () {
-      this.pasteStyle = this.$db.get('settings.pasteStyle') || 'markdown'
-    },
-    handlePasteStyleChange (val) {
-      this.$db.set('settings.pasteStyle', val)
-    },
-    uploadClipboardFiles () {
-      this.$electron.ipcRenderer.send('uploadClipboardFilesFromUploadPage')
-    },
-    getDefaultPicBed () {
-      const current = this.$db.get('picBed.current')
-      this.picBed.forEach(item => {
-        if (item.type === current) {
-          this.picBedName = item.name
-        }
-      })
-    },
-    getPicBeds (event, picBeds) {
-      this.picBed = picBeds
-      this.getDefaultPicBed()
-    },
-    handleChangePicBed () {
-      this.buildMenu()
-      this.menu.popup(this.$electron.remote.getCurrentWindow())
-    },
-    buildMenu () {
-      const _this = this
-      const submenu = this.picBed.map(item => {
-        return {
-          label: item.name,
-          type: 'radio',
-          checked: this.$db.get('picBed.current') === item.type,
-          click () {
-            _this.$db.set('picBed.current', item.type)
-            _this.$electron.ipcRenderer.send('syncPicBed')
+      }, this.locationCity)
+      var options = {
+        onSearchComplete: function (results) {
+          if (local.getStatus() === 0) {
+            // 判断状态是否正确
+            var s = []
+            for (var i = 0; i < results.getCurrentNumPois(); i++) {
+              var x = results.getPoi(i)
+              var item = { value: x.address + x.title, point: x.point }
+              s.push(item)
+              cb(s)
+            }
+          } else {
+            cb()
           }
         }
-      })
-      this.menu = this.$electron.remote.Menu.buildFromTemplate(submenu)
+      }
+      var local = new this.BMap.LocalSearch(this.map, options)
+      local.search(queryString)
+    },
+    handleSelect (item) {
+      var { point } = item
+      this.mapLocation.coordinate = point
+      this.makerCenter(point)
+    },
+    makerCenter (point) {
+      if (this.map) {
+        this.map.clearOverlays()
+        this.map.addOverlay(new this.BMap.Marker(point))
+        this.mapCenter.lng = point.lng
+        this.mapCenter.lat = point.lat
+        this.mapZoom = 15
+      }
     }
   }
 }
 </script>
-<style lang='stylus'>
-.view-title
-  color #eee
-  font-size 20px
-  text-align center
-  margin 10px auto
-#upload-view
-  .view-title
-    margin 20px auto
-  #upload-area
-    height 220px
-    border 2px dashed #dddddd
-    border-radius 8px
-    text-align center
-    width 450px
-    margin 0 auto
-    color #dddddd
-    cursor pointer
-    transition all .2s ease-in-out
-    #upload-dragger
-      height 100%
-    &.is-dragover,
-    &:hover
-      border 2px dashed #A4D8FA
-      background-color rgba(164, 216, 250, 0.3)
-      color #fff
-    i
-      font-size 66px
-      margin 50px 0 16px
-      line-height 66px
-    span
-      color #409EFF
-  #file-uploader
-    display none
-  .upload-progress
-    opacity 0
-    transition all .2s ease-in-out
-    width 450px
-    margin 20px auto 0
-    &.show
-      opacity 1
-    .el-progress-bar__inner
-      transition all .2s ease-in-out
-  .paste-style
-    text-align center
-    margin-top 16px
-    &__text
-      font-size 12px
-      color #eeeeee
-      margin-bottom 4px
-  .el-radio-button:first-child
-    .el-radio-button__inner
-      border-left none
-  .el-radio-button:first-child
-    .el-radio-button__inner
-      border-left none
-      border-radius 14px 0 0 14px
-  .el-radio-button:last-child
-    .el-radio-button__inner
-      border-left none
-      border-radius 0 14px 14px 0
-  .paste-upload
-    width 100%
+
+<style>
+.bm-view {
+  width: 100%;
+  height: 500px;
+}
 </style>

@@ -6,7 +6,7 @@
       </div>
       <div class="handle-bar" v-if="os !== 'darwin'">
         <i class="el-icon-minus" @click="minimizeWindow"></i>
-        <i class="el-icon-circle-plus-outline" @click="openMiniWindow"></i>
+        <!-- <i class="el-icon-circle-plus-outline" @click="openMiniWindow"></i> -->
         <i class="el-icon-close" @click="closeWindow"></i>
       </div>
     </div>
@@ -25,10 +25,6 @@
           <el-menu-item index="map">
             <i class="el-icon-upload"></i>
             <span slot="title">地图</span>
-          </el-menu-item>
-          <el-menu-item index="setting">
-            <i class="el-icon-setting"></i>
-            <span slot="title">PicGo设置</span>
           </el-menu-item>
         </el-menu>
         <i class="el-icon-info setting-window" @click="openDialog"></i>
@@ -181,9 +177,9 @@ export default {
         }
       })
     },
-    openMiniWindow () {
-      this.$electron.ipcRenderer.send('openMiniWindow')
-    },
+    // openMiniWindow () {
+    //   this.$electron.ipcRenderer.send('openMiniWindow')
+    // },
     getPicBeds (event, picBeds) {
       this.picBed = picBeds
     },

@@ -166,8 +166,8 @@ const createWindow = () => {
     width: 196, // 宽
     show: false, // 创建后是否显示
     frame: false, // 是否创建frameless窗口。frame这个选项，默认是true。如果选择了false则会创建一个frameless窗口，创建一个没有顶部工具栏、没有border的窗口。这个也是我们在windows系统下自定义顶部栏的基础
-    fullscreenable: false, // 是否允许全屏
-    resizable: false, // 是否允许拉伸大小
+    fullscreenable: true, // 是否允许全屏
+    resizable: true, // 是否允许拉伸大小
     transparent: true, // 是否是透明窗口（仅macOS）
     vibrancy: 'ultra-dark', // 窗口模糊的样式（仅macOS）
     webPreferences: {
@@ -199,9 +199,9 @@ const createMiniWidow = () => {
     width: 64,
     show: process.platform === 'linux',
     frame: false,
-    fullscreenable: false,
+    fullscreenable: true,
     skipTaskbar: true,
-    resizable: false,
+    resizable: true,
     transparent: process.platform !== 'linux',
     icon: `${__static}/logo.png`,
     webPreferences: {
@@ -233,8 +233,8 @@ const createSettingWindow = () => {
     show: false,
     frame: true,
     center: true,
-    fullscreenable: false,
-    resizable: false,
+    fullscreenable: true,
+    resizable: true,
     title: 'WhuMap',
     vibrancy: 'ultra-dark',
     transparent: true,
@@ -255,6 +255,7 @@ const createSettingWindow = () => {
   }
   // 主窗口实例
   settingWindow = new BrowserWindow(options)
+  settingWindow.webContents.openDevTools()
   // 页面url
   settingWindow.loadURL(settingWinURL)
   // 窗口关闭的钩子
@@ -443,14 +444,14 @@ ipcMain.on('openSettingWindow', (evt) => {
   miniWindow.hide()
 })
 
-ipcMain.on('openMiniWindow', (evt) => {
-  if (!miniWindow) {
-    createMiniWidow()
-  }
-  miniWindow.show()
-  miniWindow.focus()
-  settingWindow.hide()
-})
+// ipcMain.on('openMiniWindow', (evt) => {
+//   if (!miniWindow) {
+//     createMiniWidow()
+//   }
+//   miniWindow.show()
+//   miniWindow.focus()
+//   settingWindow.hide()
+// })
 
 //  from mini window
 ipcMain.on('syncPicBed', (evt) => {
