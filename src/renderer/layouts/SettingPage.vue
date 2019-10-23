@@ -18,9 +18,9 @@
           @select="handleSelect"
           :unique-opened="true"
           >
-          <el-menu-item index="upload">
+          <el-menu-item index="map">
             <i class="el-icon-upload"></i>
-            <span slot="title">上传区</span>
+            <span slot="title">位置信息</span>
           </el-menu-item>
           <el-menu-item index="setting">
             <i class="el-icon-setting"></i>

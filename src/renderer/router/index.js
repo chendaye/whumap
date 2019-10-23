@@ -26,9 +26,9 @@ export default new Router({
       component: require('@/layouts/SettingPage').default,
       children: [
         {
-          path: 'upload',
-          component: require('@/pages/Upload').default,
-          name: 'upload'
+          path: 'map',
+          component: require('@/pages/Map').default,
+          name: 'map'
         },
         {
           path: 'setting',
