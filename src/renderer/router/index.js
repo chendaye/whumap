@@ -31,6 +31,11 @@ export default new Router({
           name: 'map'
         },
         {
+          path: 'upload',
+          component: require('@/pages/Upload').default,
+          name: 'upload'
+        },
+        {
           path: 'setting',
           component: require('@/pages/PicGoSetting').default,
           name: 'setting'
