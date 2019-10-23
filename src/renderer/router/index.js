@@ -26,6 +26,11 @@ export default new Router({
       component: require('@/layouts/SettingPage').default,
       children: [
         {
+          path: 'area',
+          component: require('@/pages/Area').default,
+          name: 'area'
+        },
+        {
           path: 'map',
           component: require('@/pages/Map').default,
           name: 'map'
