@@ -101,6 +101,32 @@ export default {
       var local = new this.BMap.LocalSearch(this.map, options)
       local.search(queryString)
     },
+    // 重新设置地图中心点
+    makerCenter (point) {
+      if (this.map) {
+        // 清除地图上的覆盖物
+        this.map.clearOverlays()
+        // 添加地图标注
+        this.map.addOverlay(new this.BMap.Marker(point))
+        this.mapCenter.lng = point.lng
+        this.mapCenter.lat = point.lat
+        this.mapZoom = 15
+      }
+    },
+    // 根据查询地址解析经纬度，设置地图中心
+    reLocation (queryString) {
+      var that = this
+      var myGeo = new this.BMap.Geocoder()
+      // 过Geocoder.getPoint()方法来将一段地址描述转换为一个坐标
+      myGeo.getPoint(queryString, function (point) {
+        if (point) {
+          that.mapLocation.coordinate = point
+          that.makerCenter(point)
+        } else {
+          that.mapLocation.coordinate = null
+        }
+      }, this.locationCity)
+    },
     // 地址选择
     handleSelect (item) {
       var { point } = item

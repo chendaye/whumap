@@ -7,32 +7,6 @@ export const excel = {
     }
   },
   methods: {
-    // 重新设置地图中心点
-    makerCenter(point) {
-      if (this.map) {
-        // 清除地图上的覆盖物
-        this.map.clearOverlays()
-        // 添加地图标注
-        this.map.addOverlay(new this.BMap.Marker(point))
-        this.mapCenter.lng = point.lng
-        this.mapCenter.lat = point.lat
-        this.mapZoom = 15
-      }
-    },
-    // 根据查询地址解析经纬度，设置地图中心
-    reLocation(queryString) {
-      var that = this
-      var myGeo = new this.BMap.Geocoder()
-      // 过Geocoder.getPoint()方法来将一段地址描述转换为一个坐标
-      myGeo.getPoint(queryString, function (point) {
-        if (point) {
-          that.mapLocation.coordinate = point
-          that.makerCenter(point)
-        } else {
-          that.mapLocation.coordinate = null
-        }
-      }, this.locationCity)
-    },
     // 搜索结果
     result() {
       // excel数据
@@ -47,11 +21,10 @@ export const excel = {
       var _this = this
       for (let item of this.options.entries()) {
         // 定位地点
-        this.reLocation(item[1].value)
-        // 搜索结果的回调
+        this.map.centerAndZoom(new this.BMap.Point(item[1].point.lng, item[1].point.lat), this.mapZoom)
         var options = {
           onSearchComplete: function (results) {
-            console.log('$$$$$$$$$$$', results)
+            console.log('fuck-lan', results)
             if (local.getStatus() === 0) {
               for (var i = 0; i < results.getCurrentNumPois(); i++) {
                 var x = results.getPoi(i)
@@ -64,9 +37,9 @@ export const excel = {
             }
           }
         }
-        // 搜索
         var local = new this.BMap.LocalSearch(this.map, options)
-        local.search('商场')
+        local.searchNearby('超市', new this.BMap.Point(item[1].point.lng, item[1].point.lat), 3000)
+        console.log('%%%%%%%%%%%%', this.excel)
       }
     },
     // 矩形搜索
