@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-row :gutter="20">
-      <el-col :xs="22" :sm="22" :md="22">
+      <el-col :xs="17" :sm="17" :md="17">
         <el-autocomplete
         v-model="mapLocation.address"
         :fetch-suggestions="querySearch"
@@ -11,31 +11,53 @@
         @select="handleSelect"
       />
       </el-col>
+      <el-col :xs="5" :sm="5" :md="5">
+        <el-button type="primary" plain>生成excel</el-button>
+      </el-col>
+    </el-row>
+    <el-row :gutter="20">
+      <el-col :xs="11" :sm="11" :md="11">
+        <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
+      </el-col>
+       <el-col :xs="11" :sm="11" :md="11">
+        <el-card class="box-card">
+          12313
+        </el-card>
+       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'Area',
+  name: 'BaiduMapDemo',
   data () {
     return {
-      // 缩放比例
       mapZoom: 15,
-      // 经纬度
       mapCenter: { lng: 0, lat: 0 },
-      // 详细地址信息
       mapLocation: {
         address: undefined,
         coordinate: undefined
-      },
-      // 所选信息
-      area: [],
-      // excel信息
-      excelData: []
+      }
     }
   },
   methods: {
+    // 初始化地图中心
+    handlerBMap ({ BMap, map }) {
+      this.BMap = BMap
+      this.map = map
+      if (this.mapLocation.coordinate && this.mapLocation.coordinate.lng) {
+        this.mapCenter.lng = this.mapLocation.coordinate.lng
+        this.mapCenter.lat = this.mapLocation.coordinate.lat
+        this.mapZoom = 15
+        map.addOverlay(new this.BMap.Marker(this.mapLocation.coordinate))
+      } else {
+        this.mapCenter.lng = 113.271429
+        this.mapCenter.lat = 23.135336
+        this.mapZoom = 10
+      }
+    },
+    // 根据搜索结果重新定位点
     querySearch (queryString, cb) {
       var that = this
       var myGeo = new this.BMap.Geocoder()
@@ -66,11 +88,7 @@ export default {
       var local = new this.BMap.LocalSearch(this.map, options)
       local.search(queryString)
     },
-    handleSelect (item) {
-      var { point } = item
-      this.mapLocation.coordinate = point
-      this.makerCenter(point)
-    },
+    // 重新设置地图中心点
     makerCenter (point) {
       if (this.map) {
         this.map.clearOverlays()
@@ -79,11 +97,23 @@ export default {
         this.mapCenter.lat = point.lat
         this.mapZoom = 15
       }
+    },
+    handleSelect (item) {
+      var { point } = item
+      this.mapLocation.coordinate = point
+      this.makerCenter(point)
     }
   }
 }
 </script>
 
 <style>
-
+.bm-view {
+  width: 100%;
+  height: 500px;
+}
+.box-card {
+    width: 100%;
+    min-height:500px
+  }
 </style>

@@ -23,12 +23,8 @@
 </template>
 
 <script>
-import BaiduMap from 'vue-baidu-map/components/map/Map.vue'
 export default {
   name: 'BaiduMapDemo',
-  components: {
-    BaiduMap
-  },
   data () {
     return {
       mapZoom: 15,
@@ -40,6 +36,7 @@ export default {
     }
   },
   methods: {
+    // 初始化地图中心
     handlerBMap ({ BMap, map }) {
       this.BMap = BMap
       this.map = map
@@ -54,6 +51,7 @@ export default {
         this.mapZoom = 10
       }
     },
+    // 根据搜索结果重新定位点
     querySearch (queryString, cb) {
       var that = this
       var myGeo = new this.BMap.Geocoder()
@@ -84,11 +82,7 @@ export default {
       var local = new this.BMap.LocalSearch(this.map, options)
       local.search(queryString)
     },
-    handleSelect (item) {
-      var { point } = item
-      this.mapLocation.coordinate = point
-      this.makerCenter(point)
-    },
+    // 重新设置地图中心点
     makerCenter (point) {
       if (this.map) {
         this.map.clearOverlays()
@@ -97,6 +91,11 @@ export default {
         this.mapCenter.lat = point.lat
         this.mapZoom = 15
       }
+    },
+    handleSelect (item) {
+      var { point } = item
+      this.mapLocation.coordinate = point
+      this.makerCenter(point)
     }
   }
 }
