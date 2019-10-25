@@ -142,18 +142,20 @@ export default {
       if (!this.options.has(item.value) && this.options.size < 11) {
         this.options.set(item.value, item)
         this.options_arr = [...this.options]
+        this.clearSearch() // 清除搜索结果
       }
     },
     // 关闭标签
     handleClose(key) {
       this.options.delete(key)
       this.options_arr = [...this.options]
-      console.log('tag', this.options)
+      this.clearSearch() // 清除搜索结果
     },
     // 清除搜索结果
     clearResult() {
       this.options = new Map()
       this.options_arr = []
+      this.clearSearch()
     },
     // 聚焦清除地址
     clearAddress() {
@@ -161,6 +163,10 @@ export default {
         address: '',
         coordinate: { lat: undefined, lng: undefined }
       }
+    },
+    // 清除搜索结果
+    clearSearch() {
+      this.excel = new Map()
     }
   }
 }
