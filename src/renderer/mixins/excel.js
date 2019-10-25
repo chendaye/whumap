@@ -12,6 +12,7 @@ export const excel = {
       // excel数据
       if (this.isCircle) {
         this.searchNearby()
+        console.log('搜索结果', this.excel)
       } else {
         this.searchInBounds()
       }
@@ -51,7 +52,6 @@ export const excel = {
           // 第一个参数：关键字 第二个参数：搜索的中心点 第三个参数：半径 第四各参数：自定义检索数据
           local.searchNearby(kw, new this.BMap.Point(item[1].point.lng, item[1].point.lat), 300)
         }
-        console.log(item[1], this.excel)
       }
     },
     // 矩形搜索
