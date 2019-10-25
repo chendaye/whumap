@@ -12,14 +12,34 @@ export const excel = {
       // excel数据
       if (this.isCircle) {
         this.searchNearby()
-        console.log('搜索结果', this.excel)
       } else {
         this.searchInBounds()
       }
+      console.log('搜索结果', this.excel)
     },
+    // handleDownload() {
+    //   this.downloadLoading = true
+    //   import('@/vendor/Export2Excel').then(excel => {
+    //     const tHeader = ['Id', 'Title', 'Author', 'Readings', 'Date']
+    //     const filterVal = ['id', 'title', 'author', 'pageviews', 'display_time']
+    //     const list = this.list
+    //     const data = this.formatJson(filterVal, list)
+    //     excel.export_json_to_excel({
+    //       header: tHeader,
+    //       data,
+    //       filename: this.filename,
+    //       autoWidth: this.autoWidth,
+    //       bookType: this.bookType
+    //     })
+    //     this.downloadLoading = false
+    //   })
+    // },
     // 圆形搜索
     searchNearby() {
+      // 初始化
+      this.excel = new Map()
       var _this = this
+      console.log('excel====', this.options)
       // var ret = {}
       for (let item of this.options.entries()) {
         var _item = item

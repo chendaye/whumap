@@ -9,6 +9,7 @@
         style="width: 100%"
         :trigger-on-focus="false"
         @select="handleSelect"
+        @focus="clearAddress"
       />
       </el-col>
       <el-col :xs="6" :sm="6" :md="6">
@@ -18,7 +19,10 @@
           </el-radio-group>
       </el-col>
       <el-col :xs="2" :sm="2" :md="2">
-        <el-button type="primary" plain @click="result()">Excel</el-button>
+        <el-button type="primary" plain @click="result()" :loading="downloadLoading">Excel</el-button>
+      </el-col>
+      <el-col :xs="2" :sm="2" :md="2">
+        <el-button type="primary" plain @click="clearResult()" >clear</el-button>
       </el-col>
     </el-row>
     <el-row :gutter="20">
@@ -46,6 +50,7 @@ export default {
   mixins: [excel],
   data () {
     return {
+      downloadLoading: false,
       map: null, // 图
       BMap: null, // 点
       mapZoom: 15,
@@ -143,6 +148,19 @@ export default {
     handleClose(key) {
       this.options.delete(key)
       this.options_arr = [...this.options]
+      console.log('tag', this.options)
+    },
+    // 清除搜索结果
+    clearResult() {
+      this.options = new Map()
+      this.options_arr = []
+    },
+    // 聚焦清除地址
+    clearAddress() {
+      this.mapLocation = {
+        address: '',
+        coordinate: { lat: undefined, lng: undefined }
+      }
     }
   }
 }
