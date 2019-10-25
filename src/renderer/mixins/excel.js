@@ -32,25 +32,24 @@ export const excel = {
                 // 计算中心点到结果点的距离
                 var distance = _this.map.getDistance(new _this.BMap.Point(_item[1].point.lng, _item[1].point.lat), new _this.BMap.Point(x.point.lng, x.point.lat))
                 var item = {
-                  value: x.address,
+                  value: x.address + x.title,
                   point: x.point,
                   distance: distance,
-                  keyword: kw
+                  keyword: results.keyword
                 }
                 s.push(item)
-                console.log('kw', kw)
+                _this.excel.set(_item[1].value + '/' + results.keyword, s)
               }
-              _this.excel.set(_item[1].value + '/' + kw, s)
             }
           }
         }
         var local = new this.BMap.LocalSearch(this.map, options)
         // 对每一个地址都要搜多个关键字
-        for (var kw of this.keyword.values()) {
+        for (let kw of this.keyword.values()) {
           // 第一个参数：关键字 第二个参数：搜索的中心点 第三个参数：半径 第四各参数：自定义检索数据
           local.searchNearby(kw, new this.BMap.Point(item[1].point.lng, item[1].point.lat), 300)
-          console.log(kw, this.excel)
         }
+        console.log(item[1], this.excel)
       }
     },
     // 矩形搜索

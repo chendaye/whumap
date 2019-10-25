@@ -89,7 +89,7 @@ export default {
             for (var i = 0; i < results.getCurrentNumPois(); i++) {
               var x = results.getPoi(i)
               // var item = { value: x.address + x.title, point: x.point }
-              var item = { value: x.address, point: x.point }
+              var item = { value: x.address + x.title, point: x.point }
               s.push(item)
               cb(s)
             }
