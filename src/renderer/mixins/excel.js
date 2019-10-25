@@ -14,7 +14,7 @@ export const excel = {
         for (let item of this.options.entries()) {
           this.excel.set(item[0], this.searchNearby(item))
         }
-        console.log('fuck', this.excel)
+        console.log('搜索结果', this.excel)
       } else {
         this.searchInBounds()
       }
