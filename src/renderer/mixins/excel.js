@@ -19,14 +19,17 @@ export const excel = {
     // 圆形搜索
     searchNearby() {
       var _this = this
+      // var ret = {}
       for (let item of this.options.entries()) {
         var _item = item
+        // var m = new Map()
         // 定位地点
         this.map.centerAndZoom(new this.BMap.Point(item[1].point.lng, item[1].point.lat), this.mapZoom)
         var options = {
           onSearchComplete: function (results) {
             if (local.getStatus() === 0) {
               var s = []
+              // 遍历一个地址的一个关键字的结果
               for (var i = 0; i < results.getCurrentNumPois(); i++) {
                 var x = results.getPoi(i)
                 // 计算中心点到结果点的距离
@@ -38,8 +41,9 @@ export const excel = {
                   keyword: results.keyword
                 }
                 s.push(item)
-                _this.excel.set(_item[1].value + '/' + results.keyword, s)
               }
+              // m.set(results.keyword, s)
+              _this.excel.set(_item[1].value + '/' + results.keyword, s)
             }
           }
         }
@@ -49,6 +53,7 @@ export const excel = {
           // 第一个参数：关键字 第二个参数：搜索的中心点 第三个参数：半径 第四各参数：自定义检索数据
           local.searchNearby(kw, new this.BMap.Point(item[1].point.lng, item[1].point.lat), 300)
         }
+        // this.excel.set(item[1].value, m)
         console.log(item[1], this.excel)
       }
     },
