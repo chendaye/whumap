@@ -3,7 +3,11 @@ export const excel = {
     return {
       isCircle: true, // 默认搜索圆
       excel: new Map(), // excel数据
-      keyword: ['商场', '超市', '快餐店', '交叉路口'] // 个数或距离，面积
+      list: [], // 数组数据
+      keyword: ['商场', '超市', '快餐店', '交叉路口'], // 个数或距离，面积
+      filename: '',
+      autoWidth: true,
+      bookType: 'xlsx'
     }
   },
   methods: {
@@ -15,6 +19,7 @@ export const excel = {
           this.excel.set(item[0], this.searchNearby(item))
         }
         console.log('搜索结果', this.excel)
+        this.handleDownload()
       } else {
         this.searchInBounds()
       }
@@ -57,23 +62,32 @@ export const excel = {
     // 矩形搜索
     searchInBounds() {
       // ....
+    },
+    handleDownload() {
+      this.downloadLoading = true
+      import('../../vendor/Export2Excel').then(excel => {
+        const tHeader = ['Id', 'Title', 'Author', 'Readings']
+        const filterVal = ['id', 'title', 'author', 'pageviews']
+        const list = [
+          { id: 10, 'title': 'lengo', 'author': 'long', 'pageviews': 10 },
+          // eslint-disable-next-line standard/object-curly-even-spacing
+          { id: 110, 'title': 'lengo', 'author': 'long', 'pageviews': 10}
+        ]
+        const data = this.formatJson(filterVal, list)
+        excel.export_json_to_excel({
+          header: tHeader,
+          data,
+          filename: this.filename,
+          autoWidth: this.autoWidth,
+          bookType: this.bookType
+        })
+        this.downloadLoading = false
+      })
+    },
+    formatJson(filterVal, jsonData) {
+      return jsonData.map(v => filterVal.map(j => {
+        return v[j]
+      }))
     }
-    // handleDownload() {
-    //   this.downloadLoading = true
-    //   import('@/vendor/Export2Excel').then(excel => {
-    //     const tHeader = ['Id', 'Title', 'Author', 'Readings', 'Date']
-    //     const filterVal = ['id', 'title', 'author', 'pageviews', 'display_time']
-    //     const list = this.list
-    //     const data = this.formatJson(filterVal, list)
-    //     excel.export_json_to_excel({
-    //       header: tHeader,
-    //       data,
-    //       filename: this.filename,
-    //       autoWidth: this.autoWidth,
-    //       bookType: this.bookType
-    //     })
-    //     this.downloadLoading = false
-    //   })
-    // },
   }
 }
