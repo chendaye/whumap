@@ -20,16 +20,16 @@
           >
           <el-menu-item index="area">
             <i class="el-icon-upload"></i>
-            <span slot="title">表格下载</span>
+            <span slot="title">百度地图</span>
           </el-menu-item>
-          <el-menu-item index="upload">
+          <!-- <el-menu-item index="upload">
             <i class="el-icon-upload"></i>
             <span slot="title">上传区</span>
-          </el-menu-item>
-          <!-- <el-menu-item index="map">
-            <i class="el-icon-upload"></i>
-            <span slot="title">地图</span>
           </el-menu-item> -->
+          <el-menu-item index="amap">
+            <i class="el-icon-upload"></i>
+            <span slot="title">高德地图</span>
+          </el-menu-item>
         </el-menu>
         <i class="el-icon-info setting-window" @click="openDialog"></i>
       </el-col>

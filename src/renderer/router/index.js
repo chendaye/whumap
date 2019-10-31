@@ -31,9 +31,9 @@ export default new Router({
           name: 'area'
         },
         {
-          path: 'map',
-          component: require('@/pages/Map').default,
-          name: 'map'
+          path: 'amap',
+          component: require('@/pages/amap').default,
+          name: 'amap'
         },
         {
           path: 'upload',
