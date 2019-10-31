@@ -33,7 +33,7 @@
     </el-row>
     <!-- 第二列 -->
     <el-row :gutter="10">
-      <el-col :xs="22" :sm="22" :md="22">
+      <el-col :xs="24" :sm="24" :md="24">
         <el-tag
           :key="tag"
           v-for="tag in keyword"
@@ -57,10 +57,10 @@
     </el-row>
     <!-- 第三列 -->
     <el-row :gutter="10">
-      <el-col :xs="15" :sm="15" :md="15">
+      <el-col :xs="14" :sm="14" :md="14">
         <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
       </el-col>
-       <el-col :xs="8" :sm="8" :md="8">
+       <el-col :xs="10" :sm="10" :md="10">
         <el-card class="box-card">
         <div slot="header" class="clearfix">
           <span>已选地址列表</span>
@@ -186,6 +186,8 @@ export default {
     clearResult() {
       this.options = new Map()
       this.options_arr = []
+      this.radius = 0.3
+      this.keyword = ['篮球场', '足球场', '羽毛球场']
       this.clearSearch()
     },
     // 聚焦清除地址
