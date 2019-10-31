@@ -1,6 +1,7 @@
 <template>
   <div>
-    <el-row :gutter="20">
+    <!-- 第一列 -->
+    <el-row :gutter="30">
       <el-col :xs="10" :sm="10" :md="10">
         <el-autocomplete
         v-model="mapLocation.address"
@@ -12,20 +13,50 @@
         @focus="clearAddress"
       />
       </el-col>
-      <el-col :xs="6" :sm="6" :md="6">
+      <el-col :xs="6" :sm="6" :md="6" v-if="false">
           <el-radio-group v-model="isCircle">
             <el-radio-button :label="true">圆形</el-radio-button>
             <el-radio-button :label="false">矩形</el-radio-button>
           </el-radio-group>
       </el-col>
-      <el-col :xs="2" :sm="2" :md="2">
+      <el-col :xs="6" :sm="6" :md="6" >
+          <el-input placeholder="半径" v-model="radius">
+            <template slot="append">km</template>
+          </el-input>
+      </el-col>
+      <el-col :xs="4" :sm="4" :md="4">
         <el-button type="primary" plain @click="result()" :loading="downloadLoading">Excel</el-button>
       </el-col>
-      <el-col :xs="2" :sm="2" :md="2">
+      <el-col :xs="4" :sm="4" :md="4" >
         <el-button type="primary" plain @click="clearResult()" >clear</el-button>
       </el-col>
     </el-row>
-    <el-row :gutter="20">
+    <!-- 第二列 -->
+    <el-row :gutter="10">
+      <el-col :xs="22" :sm="22" :md="22">
+        <el-tag
+          :key="tag"
+          v-for="tag in keyword"
+          closable
+          :disable-transitions="false"
+          @close="closeTag(tag)">
+          {{tag}}
+        </el-tag>
+        <el-input
+          class="input-new-tag"
+          v-if="inputVisible"
+          v-model="inputValue"
+          ref="saveTagInput"
+          size="small"
+          @keyup.enter.native="handleInputConfirm"
+          @blur="handleInputConfirm"
+        >
+      </el-input>
+      <el-button v-else class="button-new-tag" size="small" @click="showInput">+ Keywordd</el-button>
+      </el-col>
+    </el-row>
+    <!-- 第三列 -->
+    <el-row :gutter="10">
       <el-col :xs="15" :sm="15" :md="15">
         <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
       </el-col>
@@ -197,5 +228,12 @@ export default {
 .box-card {
     width: 100%;
     min-height:500px
+  }
+
+  .el-row {
+    margin-bottom: 20px;
+    &:last-child {
+      margin-bottom: 0;
+    }
   }
 </style>

@@ -2,12 +2,17 @@ export const excel = {
   data() {
     return {
       isCircle: true, // 默认搜索圆
+      radius: 0.3, // 300m
       excel: new Map(), // excel数据
       list: [], // 数组数据
-      keyword: ['商场', '超市', '快餐店', '交叉路口'], // 个数或距离，面积
+      // keyword: ['商场', '超市', '快餐店', '交叉路口'], // 个数或距离，面积
       filename: '',
       autoWidth: true,
-      bookType: 'xlsx'
+      bookType: 'xlsx',
+      // 动态关键字
+      keyword: ['篮球场', '足球场', '羽毛球场'],
+      inputVisible: false,
+      inputValue: ''
     }
   },
   methods: {
@@ -55,7 +60,7 @@ export const excel = {
       var local = new this.BMap.LocalSearch(this.map, options)
       for (let kw of this.keyword.values()) {
         // 对每一个地址都要搜多个关键字。第一个参数：关键字 第二个参数：搜索的中心点 第三个参数：半径 第四各参数：自定义检索数据
-        local.searchNearby(kw, new this.BMap.Point(item[1].point.lng, item[1].point.lat), 300)
+        local.searchNearby(kw, new this.BMap.Point(item[1].point.lng, item[1].point.lat), this.radius * 1000)
       }
       return data
     },
@@ -88,6 +93,26 @@ export const excel = {
       return jsonData.map(v => filterVal.map(j => {
         return v[j]
       }))
+    },
+    // 动态关键字
+    closeTag(tag) {
+      this.keyword.splice(this.keyword.indexOf(tag), 1)
+    },
+
+    showInput() {
+      this.inputVisible = true
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus()
+      })
+    },
+
+    handleInputConfirm() {
+      let inputValue = this.inputValue
+      if (inputValue) {
+        this.keyword.push(inputValue)
+      }
+      this.inputVisible = false
+      this.inputValue = ''
     }
   }
 }
