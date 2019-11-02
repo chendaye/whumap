@@ -1,15 +1,15 @@
 <template>
   <div>
+    <!-- 上传Excel -->
     <el-row :gutter="20">
-      <el-col :xs="22" :sm="22" :md="22">
-        <el-autocomplete
-        v-model="mapLocation.address"
-        :fetch-suggestions="querySearch"
-        placeholder="请输入详细地址"
-        style="width: 100%"
-        :trigger-on-focus="false"
-        @select="handleSelect"
-      />
+      <el-col :xs="24" :sm="24" :md="24">
+         <upExcel @getInfo='getInfo'></upExcel>
+      </el-col>
+    </el-row>
+    <!-- 下载Excel -->
+    <el-row :gutter="20">
+      <el-col :xs="24" :sm="24" :md="24">
+        <el-button style="margin-left:16px;" size="mini" type="primary" plain @click="download()" :loading="downloadLoading">Download</el-button>
       </el-col>
     </el-row>
   </div>
@@ -17,10 +17,15 @@
 
 <script>
 import AMap from '../utils/AMap'
+import { excel } from '../mixins/aexcel'
+import upExcel from '../components/upExcel/excelData'
 export default {
   name: 'AMap',
+  components: { upExcel },
+  mixins: [excel],
   data () {
     return {
+      downloadLoading: false,
       mapZoom: 15,
       mapCenter: { lng: 0, lat: 0 },
       mapLocation: {
@@ -28,7 +33,8 @@ export default {
         coordinate: undefined
       },
       map: null,
-      resMap: null
+      resMap: null,
+      uploadData: {}
     }
   },
   created() {
@@ -38,6 +44,11 @@ export default {
     this.initAMap()
   },
   methods: {
+    getInfo(data) {
+      // 获取上传的excel信息
+      this.uploadData = data
+      console.log('上传的信息', this.uploadData)
+    },
     async initAMap() {
       try {
         // 修改
@@ -125,43 +136,6 @@ export default {
       // data中添加myPosition
       this.myPosition = [this.mapCenter.lng, this.mapCenter.lat]
       return this.resMap.GeometryUtil.distance(p1, this.myPosition)
-    },
-
-    // 根据搜索结果重新定位点
-    querySearch (queryString, cb) {
-      var that = this
-      var myGeo = new this.BMap.Geocoder()
-      myGeo.getPoint(queryString, function (point) {
-        if (point) {
-          that.mapLocation.coordinate = point
-          that.makerCenter(point)
-        } else {
-          that.mapLocation.coordinate = null
-        }
-      }, this.locationCity)
-      var options = {
-        onSearchComplete: function (results) {
-          if (local.getStatus() === 0) {
-            // 判断状态是否正确
-            var s = []
-            for (var i = 0; i < results.getCurrentNumPois(); i++) {
-              var x = results.getPoi(i)
-              var item = { value: x.address + x.title, point: x.point }
-              s.push(item)
-              cb(s)
-            }
-          } else {
-            cb()
-          }
-        }
-      }
-      var local = new this.BMap.LocalSearch(this.map, options)
-      local.search(queryString)
-    },
-    handleSelect (item) {
-      var { point } = item
-      this.mapLocation.coordinate = point
-      this.makerCenter(point)
     }
   }
 }
