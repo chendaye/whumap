@@ -27,7 +27,7 @@ export default {
     return {
       downloadLoading: false,
       mapZoom: 15,
-      mapCenter: { lng: 0, lat: 0 },
+      mapCenter: { lng: 30.598604, lat: 114.311754 },
       mapLocation: {
         address: undefined,
         coordinate: undefined
@@ -51,7 +51,7 @@ export default {
     },
     async initAMap() {
       try {
-        // 修改
+        // 初始化地图
         this.resMap = await AMap()
         this.map = new this.resMap.Map('container', {
           resizeEnable: true, // 是否监控地图容器尺寸变化
