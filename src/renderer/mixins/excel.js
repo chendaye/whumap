@@ -21,10 +21,12 @@ export const excel = {
       // excel数据
       if (this.isCircle) {
         for (let item of this.options.entries()) {
-          this.excel.set(item[0], this.searchNearby(item))
+          let tmp = this.searchNearby(item)
+          this.excel.set(item[0], tmp)
         }
+        console.log('$db', this.$db.get("_item[0] + '/' + results.keyword"))
         // 重组excel数据
-        this.toExcel()
+        // this.toExcel()
         // 下载excel
         // this.handleDownload()
       } else {
@@ -36,10 +38,8 @@ export const excel = {
       for (let value of this.excel.entries()) {
         // let centerPoint = value[0]
         let centerInfo = value[1]
-        centerInfo.push([123, 456])
         console.log('data', centerInfo)
         console.log('size', centerInfo.length)
-        console.log('size', centerInfo[1])
         // 关键字地址个数
         for (let elem of centerInfo.values()) {
           console.log(elem)
@@ -76,6 +76,8 @@ export const excel = {
               value: s
             }
             data.push(m)
+            that.$db.insert("_item[0] + '/' + results.keyword", m)
+            // that.$db.insert(_item[0] + '/' + results.keyword, m)
           }
         }
       }
