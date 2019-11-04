@@ -33,18 +33,22 @@ export const excel = {
     },
     // todo:重组excel数据
     toExcel() {
-      let tmp = [...this.excel]
-      for (let value of tmp.entries()) {
-        // let t = [...value[1]]
-        console.log(value[1])
-        // for (let [k, v] of value[1].entries()) {
-        //   console.log(k, v)
-        // }
+      for (let value of this.excel.entries()) {
+        // let centerPoint = value[0]
+        let centerInfo = value[1]
+        centerInfo.push([123, 456])
+        console.log('data', centerInfo)
+        console.log('size', centerInfo.length)
+        console.log('size', centerInfo[1])
+        // 关键字地址个数
+        for (let elem of centerInfo.values()) {
+          console.log(elem)
+        }
       }
     },
     // todo:搜索一个地址的多个关键字
     searchNearby(item) {
-      var data = new Map()
+      var data = []
       var that = this
       var _item = item
       // 定位地点
@@ -58,6 +62,7 @@ export const excel = {
               var x = results.getPoi(i)
               // 计算中心点到结果点的距离
               var distance = that.map.getDistance(new that.BMap.Point(_item[1].point.lng, _item[1].point.lat), new that.BMap.Point(x.point.lng, x.point.lat))
+              distance = distance.toFixed(2) // 保留2位小数
               var item = {
                 value: x.address + x.title,
                 point: x.point,
@@ -66,7 +71,11 @@ export const excel = {
               }
               s.push(item)
             }
-            data.set(results.keyword, s)
+            let m = {
+              key: results.keyword,
+              value: s
+            }
+            data.push(m)
           }
         }
       }
