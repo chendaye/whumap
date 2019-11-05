@@ -153,7 +153,6 @@ export default {
     handleSubmit (e) {
       e.preventDefault()
       this.form.validateFields((err, values) => {
-        console.log(err)
         if (!err) {
           this.setOpenShopData(values.openShopData)
           this.setCurrent(2)

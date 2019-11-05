@@ -62,7 +62,6 @@
       })
       this.$electron.ipcRenderer.on('uploadFiles', (event) => {
         this.files = this.$db.read().get('uploaded').slice().reverse().slice(0, 5).value()
-        console.log(this.files)
         this.uploadFlag = false
       })
       this.$electron.ipcRenderer.on('updateFiles', (event) => {

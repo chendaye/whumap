@@ -23,14 +23,14 @@ export const excel = {
     },
     // todo:重组excel数据
     toExcel() {
-      let tmp = [...this.excel]
-      for (let value of tmp.entries()) {
-        // let t = [...value[1]]
-        console.log(value[1])
-        // for (let [k, v] of value[1].entries()) {
-        //   console.log(k, v)
-        // }
-      }
+      // let tmp = [...this.excel]
+      // for (let value of tmp.entries()) {
+      //   let t = [...value[1]]
+      //   console.log(value[1])
+      //   for (let [k, v] of value[1].entries()) {
+      //     console.log(k, v)
+      //   }
+      // }
     },
     handleDownload() {
       this.downloadLoading = true

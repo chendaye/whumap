@@ -47,7 +47,6 @@ export default {
     getInfo(data) {
       // 获取上传的excel信息
       this.uploadData = data
-      console.log('上传的信息', this.uploadData)
     },
     async initAMap() {
       try {
@@ -67,7 +66,7 @@ export default {
 
         this.addMarker()
       } catch (err) {
-        console.error(err)
+        // console.error(err)
       }
     },
     // 创建点标记
@@ -127,7 +126,8 @@ export default {
 
     // 定位出错
     onError(err) {
-      console.error(err, '--定位出错--')
+      err = null
+      // console.error(err, '--定位出错--')
     },
 
     // 计算两点之间的距离
