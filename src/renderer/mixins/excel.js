@@ -36,12 +36,19 @@ export const excel = {
     },
     // 搜索结果
     result() {
+      this.downloadLoading = true
+      this.list = [] // 清空
       // for循环执行时不会等待异步函数执行
+      var kLen = this.keyword.length > 0 ? this.keyword.length : 0
+      var aLen = this.options.size > 0 ? this.options.size : 0
       for (let item of this.options.values()) {
         // 异步
         this.searchNearby(item, (res) => {
           this.list.push(res)
-          console.log(item.value, this.list)
+          if (this.list.length === kLen * aLen) {
+            console.log(item.value, this.list)
+            this.downloadLoading = false
+          }
         })
       }
     },
@@ -50,7 +57,6 @@ export const excel = {
       var that = this
       var center = item.value
       var point = item.point
-      var data = []
       // 定位地点
       this.map.centerAndZoom(new this.BMap.Point(point.lng, point.lat), this.mapZoom)
       var options = {
@@ -78,8 +84,15 @@ export const excel = {
               value: s
             }
             // todo:异步回调
-            data.push(m)
-            cb(m)
+            if (cb) cb(m)
+          } else {
+            let m = {
+              center: center,
+              key: results.keyword,
+              value: []
+            }
+            // todo:异步回调
+            if (cb) cb(m)
           }
         }
       }
@@ -88,7 +101,6 @@ export const excel = {
         // 对每一个地址都要搜多个关键字。第一个参数：关键字 第二个参数：搜索的中心点 第三个参数：半径 第四各参数：自定义检索数据
         local.searchNearby(kw, new this.BMap.Point(point.lng, point.lat), this.radius * 1000)
       }
-      return data
     },
     // 矩形搜索
     searchInBounds() {
