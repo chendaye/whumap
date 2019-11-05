@@ -30,29 +30,25 @@ export const excel = {
     strMapToArr(strMap) {
       let arr = []
       for (let v of strMap) {
-        arr.push(v[1].point)
+        arr.push(v[1])
       }
       return arr
     },
     // 搜索结果
     result() {
-      // let obj = this.strMapToObj(this.options)
-      // let arr = this.strMapToArr(this.options)
       // for循环执行时不会等待异步函数执行
       for (let item of this.options.values()) {
         // 异步
         this.searchNearby(item, (res) => {
           this.list.push(res)
+          console.log(item.value, this.list)
         })
       }
-      console.log(this.list)
-      // 下载excel
-      // this.handleDownload()
     },
     // todo:搜索一个地址的多个关键字
     searchNearby(item, cb = null) {
       var that = this
-      // var center = item.value
+      var center = item.value
       var point = item.point
       var data = []
       // 定位地点
@@ -77,6 +73,7 @@ export const excel = {
               s.push(tmp)
             }
             let m = {
+              center: center,
               key: results.keyword,
               value: s
             }
