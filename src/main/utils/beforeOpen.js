@@ -30,7 +30,7 @@ function resolveMacWorkFlow () {
     try {
       fs.copySync(path.join(__static, 'Upload pictures with PicGo.workflow'), dest)
     } catch (e) {
-      console.log(e)
+      // error
     }
   }
 }
