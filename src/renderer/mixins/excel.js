@@ -14,7 +14,9 @@ export const excel = {
       // 动态关键字
       keyword: ['篮球场', '足球场', '羽毛球场'],
       inputVisible: false,
-      inputValue: ''
+      inputValue: '',
+      header: ['地址', '关键字', '最近距离(米)', '密度(个/平方公里)', '数量'],
+      filter: ['center', 'keyword', 'min', 'density', 'number']
     }
   },
   methods: {
@@ -46,7 +48,31 @@ export const excel = {
         this.searchNearby(item, (res) => {
           this.list.push(res)
           if (this.list.length === kLen * aLen) {
-            console.log(item.value, this.list)
+            let excel = []
+            // 遍历异步结果，组织成excel数据
+            // console.log('raw', this.list)
+            for (let el of this.list.values()) {
+              let center = el.center
+              let keyword = el.key
+              let min = Number.MAX_SAFE_INTEGER
+              let number = 0
+              for (let e of el.value.values()) {
+                // 找最小距离
+                if (min > Number(e.distance)) min = e.distance
+                number = Number(e.total)
+              }
+              // let den = el.value.length / (Math.pow(this.radius, 2) * 3.14)
+              let den = number / (Math.pow(this.radius, 2) * 3.14)
+              excel.push({
+                center: center,
+                keyword: keyword,
+                min: min === Number.MAX_SAFE_INTEGER ? 0 : min,
+                density: den.toFixed(5), // 保留5位小数
+                number: number
+              })
+            }
+            // console.log('excel', excel)
+            this.handleDownload(excel)
             this.downloadLoading = false
           }
         })
@@ -65,6 +91,9 @@ export const excel = {
           if (local.getStatus() === 0) {
             var s = []
             // 遍历一个地址的一个关键字的结果
+            // console.log('总页数', results.getNumPages())
+            // console.log('当前页', results.getPageIndex())
+            // console.log('总结果数', results.getNumPois())
             for (var i = 0; i < results.getCurrentNumPois(); i++) {
               var x = results.getPoi(i)
               // 计算中心点到结果点的距离
@@ -74,7 +103,8 @@ export const excel = {
                 value: x.address + x.title,
                 point: x.point,
                 distance: distance,
-                keyword: results.keyword
+                keyword: results.keyword,
+                total: results.getNumPois() // 总结果数
               }
               s.push(tmp)
             }
@@ -94,7 +124,8 @@ export const excel = {
             // todo:异步回调
             if (cb) cb(m)
           }
-        }
+        },
+        pageCapacity: 100 // 每页最大100
       }
       var local = new this.BMap.LocalSearch(this.map, options)
       for (let kw of this.keyword.values()) {
@@ -106,17 +137,13 @@ export const excel = {
     searchInBounds() {
       // ....
     },
-    handleDownload() {
+    handleDownload(data) {
       this.downloadLoading = true
+      var res = data
       import('../vendor/Export2Excel').then(excel => {
-        const tHeader = ['Id', 'Title', 'Author', 'Readings']
-        const filterVal = ['id', 'title', 'author', 'pageviews']
-        const list = [
-          { id: 10, 'title': 'lengo', 'author': 'long', 'pageviews': 10 },
-          // eslint-disable-next-line standard/object-curly-even-spacing
-          { id: 110, 'title': 'lengo', 'author': 'long', 'pageviews': 10}
-        ]
-        const data = this.formatJson(filterVal, list)
+        const tHeader = this.header
+        const filterVal = this.filter
+        const data = this.formatJson(filterVal, res)
         excel.export_json_to_excel({
           header: tHeader,
           data,
