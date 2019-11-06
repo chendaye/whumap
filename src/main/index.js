@@ -255,7 +255,8 @@ const createSettingWindow = () => {
   }
   // 主窗口实例
   settingWindow = new BrowserWindow(options)
-  settingWindow.webContents.openDevTools()
+  // todo:Debug
+  // settingWindow.webContents.openDevTools()
   // 页面url
   settingWindow.loadURL(settingWinURL)
   // 窗口关闭的钩子
