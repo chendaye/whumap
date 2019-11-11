@@ -1,7 +1,8 @@
 <template>
   <div>
-    <el-row :gutter="20">
-      <el-col :xs="22" :sm="22" :md="22">
+    <!-- 第一列 -->
+    <el-row :gutter="30">
+      <el-col :xs="10" :sm="10" :md="10">
         <el-autocomplete
         v-model="mapLocation.address"
         :fetch-suggestions="querySearch"
@@ -9,41 +10,101 @@
         style="width: 100%"
         :trigger-on-focus="false"
         @select="handleSelect"
+        @focus="clearAddress"
       />
       </el-col>
-    </el-row>
-    <el-row :gutter="20">
-      <el-col :xs="22" :sm="22" :md="22">
-           <div style="margin: 5px">
-      <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
-    </div>
+      <el-col :xs="6" :sm="6" :md="6" v-if="false">
+          <el-radio-group v-model="isCircle">
+            <el-radio-button :label="true">圆形</el-radio-button>
+            <el-radio-button :label="false">矩形</el-radio-button>
+          </el-radio-group>
       </el-col>
+      <el-col :xs="6" :sm="6" :md="6" >
+          <el-input placeholder="半径" v-model="radius" @focus="clearRadius">
+            <template slot="append">km</template>
+          </el-input>
+      </el-col>
+      <el-col :xs="4" :sm="4" :md="4">
+        <el-button type="primary" plain @click="result()" :loading="downloadLoading">Excel</el-button>
+      </el-col>
+      <el-col :xs="4" :sm="4" :md="4" >
+        <el-button type="primary" plain @click="clearResult()" >clear</el-button>
+      </el-col>
+    </el-row>
+    <!-- 第二列 -->
+    <el-row :gutter="10">
+      <el-col :xs="24" :sm="24" :md="24">
+        <el-tag
+          :key="tag"
+          v-for="tag in keyword"
+          closable
+          :disable-transitions="false"
+          @close="closeTag(tag)">
+          {{tag}}
+        </el-tag>
+        <el-input
+          class="input-new-tag"
+          v-if="inputVisible"
+          v-model="inputValue"
+          ref="saveTagInput"
+          size="small"
+          @keyup.enter.native="handleInputConfirm"
+          @blur="handleInputConfirm"
+        >
+      </el-input>
+      <el-button v-else class="button-new-tag" size="small" @click="showInput">+ Keywordd</el-button>
+      </el-col>
+    </el-row>
+    <!-- 第三列 -->
+    <el-row :gutter="10">
+      <el-col :xs="14" :sm="14" :md="14">
+        <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
+      </el-col>
+       <el-col :xs="10" :sm="10" :md="10">
+        <el-card class="box-card">
+        <div slot="header" class="clearfix">
+          <span>已选地址列表</span>
+        </div>
+        <div v-for="(val, key) in options_arr" :key="key"  class="text item">
+          <el-tag type="success" closable @close="handleClose(val[0])" >{{ val[0] }}</el-tag>
+        </div>
+      </el-card>
+       </el-col>
     </el-row>
   </div>
 </template>
 
 <script>
+import { excel } from '../mixins/excel'
 export default {
   name: 'BaiduMapDemo',
+  mixins: [excel],
   data () {
     return {
+      downloadLoading: false,
+      map: null, // 图
+      BMap: null, // 点
       mapZoom: 15,
-      mapCenter: { lng: 0, lat: 0 },
+      mapCenter: { lng: 0, lat: 0 }, // 武汉市江岸区
       mapLocation: {
-        address: undefined,
-        coordinate: undefined
-      }
+        address: '武汉市市政府',
+        coordinate: { lat: 30.598604, lng: 114.311754 }
+      },
+      options: new Map(), // 地址选项
+      options_arr: []
     }
   },
   methods: {
     // 初始化地图中心
     handlerBMap ({ BMap, map }) {
-      this.BMap = BMap
-      this.map = map
+      // 初始化地图类
+      this.BMap = BMap // 点
+      this.map = map // 图
       if (this.mapLocation.coordinate && this.mapLocation.coordinate.lng) {
         this.mapCenter.lng = this.mapLocation.coordinate.lng
         this.mapCenter.lat = this.mapLocation.coordinate.lat
         this.mapZoom = 15
+        // 添加定位
         map.addOverlay(new this.BMap.Marker(this.mapLocation.coordinate))
       } else {
         this.mapCenter.lng = 113.271429
@@ -53,16 +114,9 @@ export default {
     },
     // 根据搜索结果重新定位点
     querySearch (queryString, cb) {
-      var that = this
-      var myGeo = new this.BMap.Geocoder()
-      myGeo.getPoint(queryString, function (point) {
-        if (point) {
-          that.mapLocation.coordinate = point
-          that.makerCenter(point)
-        } else {
-          that.mapLocation.coordinate = null
-        }
-      }, this.locationCity)
+      // 根据查询地址解析经纬度，设置地图中心
+      this.reLocation(queryString)
+      // 搜索结果的回调
       var options = {
         onSearchComplete: function (results) {
           if (local.getStatus() === 0) {
@@ -70,6 +124,7 @@ export default {
             var s = []
             for (var i = 0; i < results.getCurrentNumPois(); i++) {
               var x = results.getPoi(i)
+              // var item = { value: x.address + x.title, point: x.point }
               var item = { value: x.address + x.title, point: x.point }
               s.push(item)
               cb(s)
@@ -79,23 +134,75 @@ export default {
           }
         }
       }
+      // 搜索
       var local = new this.BMap.LocalSearch(this.map, options)
       local.search(queryString)
     },
     // 重新设置地图中心点
     makerCenter (point) {
       if (this.map) {
+        // 清除地图上的覆盖物
         this.map.clearOverlays()
+        // 添加地图标注
         this.map.addOverlay(new this.BMap.Marker(point))
         this.mapCenter.lng = point.lng
         this.mapCenter.lat = point.lat
         this.mapZoom = 15
       }
     },
+    // 根据查询地址解析经纬度，设置地图中心
+    reLocation (queryString) {
+      var that = this
+      var myGeo = new this.BMap.Geocoder()
+      // 过Geocoder.getPoint()方法来将一段地址描述转换为一个坐标
+      myGeo.getPoint(queryString, function (point) {
+        if (point) {
+          that.mapLocation.coordinate = point
+          that.makerCenter(point)
+        } else {
+          that.mapLocation.coordinate = null
+        }
+      }, this.locationCity)
+    },
+    // 地址选择
     handleSelect (item) {
       var { point } = item
       this.mapLocation.coordinate = point
       this.makerCenter(point)
+      // 添加搜索地址
+      if (!this.options.has(item.value) && this.options.size < 11) {
+        this.options.set(item.value, item)
+        this.options_arr = [...this.options]
+        this.clearSearch() // 清除搜索结果
+      }
+    },
+    // 关闭标签
+    handleClose(key) {
+      this.options.delete(key)
+      this.options_arr = [...this.options]
+      this.clearSearch() // 清除搜索结果
+    },
+    // 清除搜索结果
+    clearResult() {
+      this.options = new Map()
+      this.options_arr = []
+      this.radius = 0.3
+      this.keyword = ['篮球场', '足球场', '羽毛球场']
+      this.clearSearch()
+    },
+    // 聚焦清除地址
+    clearAddress() {
+      this.mapLocation = {
+        address: '',
+        coordinate: { lat: undefined, lng: undefined }
+      }
+    },
+    clearRadius() {
+      this.radius = null
+    },
+    // 清除搜索结果
+    clearSearch() {
+      this.excel = new Map()
     }
   }
 }
@@ -106,4 +213,32 @@ export default {
   width: 100%;
   height: 500px;
 }
+ .text {
+    font-size: 14px;
+  }
+
+  .item {
+    margin-bottom: 18px;
+  }
+
+  .clearfix:before,
+  .clearfix:after {
+    display: table;
+    content: "";
+  }
+  .clearfix:after {
+    clear: both
+  }
+
+.box-card {
+    width: 100%;
+    min-height:500px
+  }
+
+  .el-row {
+    margin-bottom: 20px;
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
 </style>
