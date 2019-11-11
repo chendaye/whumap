@@ -20,7 +20,7 @@
           </el-radio-group>
       </el-col>
       <el-col :xs="6" :sm="6" :md="6" >
-          <el-input placeholder="半径" v-model="radius">
+          <el-input placeholder="半径" v-model="radius" @focus="clearRadius">
             <template slot="append">km</template>
           </el-input>
       </el-col>
@@ -196,6 +196,9 @@ export default {
         address: '',
         coordinate: { lat: undefined, lng: undefined }
       }
+    },
+    clearRadius() {
+      this.radius = null
     },
     // 清除搜索结果
     clearSearch() {

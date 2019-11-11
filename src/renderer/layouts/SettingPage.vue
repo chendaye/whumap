@@ -20,16 +20,16 @@
           >
           <el-menu-item index="area">
             <i class="el-icon-upload"></i>
-            <span slot="title">百度地图</span>
+            <span slot="title">区域搜索</span>
           </el-menu-item>
           <!-- <el-menu-item index="upload">
             <i class="el-icon-upload"></i>
             <span slot="title">上传区</span>
           </el-menu-item> -->
-          <el-menu-item index="amap">
+          <!-- <el-menu-item index="amap">
             <i class="el-icon-upload"></i>
             <span slot="title">高德地图</span>
-          </el-menu-item>
+          </el-menu-item> -->
         </el-menu>
         <i class="el-icon-info setting-window" @click="openDialog"></i>
       </el-col>
@@ -71,7 +71,7 @@ export default {
     }
     return {
       version: process.env.NODE_ENV === 'production' ? pkg.version : 'Dev',
-      defaultActive: 'upload',
+      defaultActive: 'area',
       menu: null,
       visible: false,
       keyBindingVisible: false,
