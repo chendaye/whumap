@@ -3,7 +3,7 @@ export const excel = {
   data() {
     return {
       isCircle: true, // 默认搜索圆
-      radius: 0.3, // 300m
+      radius: 0, // 300m
       excel: new Map(), // excel数据
       list: [], // 数组数据
       obj: [], // 数组数据
@@ -12,7 +12,7 @@ export const excel = {
       autoWidth: true,
       bookType: 'xlsx',
       // 动态关键字
-      keyword: ['篮球场', '足球场', '羽毛球场'],
+      keyword: ['超市', '公园', '公交站', '地铁站', '中餐', '酒店'],
       inputVisible: false,
       inputValue: '',
       header: ['地址', '关键字', '最近距离(米)', '密度(个/平方公里)', '数量'],
@@ -47,6 +47,7 @@ export const excel = {
         // 异步
         this.searchNearby(item, (res) => {
           this.list.push(res)
+          // todo终止条件
           if (this.list.length === kLen * aLen) {
             let excel = []
             // 遍历异步结果，组织成excel数据
@@ -61,8 +62,7 @@ export const excel = {
                 if (min > Number(e.distance)) min = e.distance
                 number = Number(e.total)
               }
-              // let den = el.value.length / (Math.pow(this.radius, 2) * 3.14)
-              let den = number / (Math.pow(this.radius, 2) * 3.14)
+              let den = number / (Math.pow(this.radius / 1000, 2) * 3.14) // 半径单位米
               excel.push({
                 center: center,
                 keyword: keyword,
@@ -130,7 +130,7 @@ export const excel = {
       var local = new this.BMap.LocalSearch(this.map, options)
       for (let kw of this.keyword.values()) {
         // 对每一个地址都要搜多个关键字。第一个参数：关键字 第二个参数：搜索的中心点 第三个参数：半径 第四各参数：自定义检索数据
-        local.searchNearby(kw, new this.BMap.Point(point.lng, point.lat), this.radius * 1000)
+        local.searchNearby(kw, new this.BMap.Point(point.lng, point.lat), this.radius)
       }
     },
     // 矩形搜索

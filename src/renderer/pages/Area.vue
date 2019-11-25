@@ -20,8 +20,8 @@
           </el-radio-group>
       </el-col>
       <el-col :xs="6" :sm="6" :md="6" >
-          <el-input placeholder="半径" v-model="radius" @focus="clearRadius">
-            <template slot="append">km</template>
+          <el-input placeholder="半径" v-model="radius" type="NUmber" :max="1000" :min="0" @input.native="changeNumber" @focus="clearRadius">
+            <template slot="append">m</template>
           </el-input>
       </el-col>
       <el-col :xs="4" :sm="4" :md="4">
@@ -186,7 +186,7 @@ export default {
     clearResult() {
       this.options = new Map()
       this.options_arr = []
-      this.radius = 0.3
+      this.radius = 0
       this.keyword = ['篮球场', '足球场', '羽毛球场']
       this.clearSearch()
     },
@@ -203,6 +203,14 @@ export default {
     // 清除搜索结果
     clearSearch() {
       this.excel = new Map()
+    },
+    changeNumber() {
+      if (this.radius < 0) {
+        this.radius = 0
+      } else if (this.radius > 1000) {
+        this.radius = 1000
+      }
+      this.radius = this.radius.replace('-', '')
     }
   }
 }
