@@ -1,12 +1,13 @@
 <template>
   <div>
     <input ref="excel-upload-input" class="excel-upload-input" type="file" accept=".xlsx, .xls" @change="handleClick">
-    <div class="drop" @drop="handleDrop" @dragover="handleDragover" @dragenter="handleDragover">
+    <el-button :loading="loading" type="success" plain @click="handleUpload">Upload</el-button>
+    <!-- <div class="drop" @drop="handleDrop" @dragover="handleDragover" @dragenter="handleDragover">
       Drop excel file here or
       <el-button :loading="loading" style="margin-left:16px;" size="mini" type="primary" @click="handleUpload">
         Upload
       </el-button>
-    </div>
+    </div> -->
   </div>
 </template>
 
@@ -58,7 +59,22 @@ export default {
       e.dataTransfer.dropEffect = 'copy'
     },
     handleUpload() {
-      this.$refs['excel-upload-input'].click()
+      this.$confirm('请确保表格中的地址信息足够详细,以便解析到正确坐标, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.$refs['excel-upload-input'].click()
+        this.$message({
+          type: 'success',
+          message: '上传成功!'
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消上传'
+        })
+      })
     },
     handleClick(e) {
       const files = e.target.files

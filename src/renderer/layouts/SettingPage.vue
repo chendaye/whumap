@@ -29,8 +29,8 @@
           <!-- <el-menu-item index="amap">
             <i class="el-icon-upload"></i>
             <span slot="title">高德地图</span>
-          </el-menu-item>
-        </el-menu> -->
+          </el-menu-item>-->
+        </el-menu> 
         <i class="el-icon-info setting-window" @click="openDialog"></i>
       </el-col>
       <el-col
@@ -266,7 +266,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
     height calc(100vh - 22px)
     overflow-x hidden
     overflow-y auto
-    width 170px
+    width 160px
     .el-icon-info.setting-window
       position fixed 
       bottom 4px
@@ -279,7 +279,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
   .el-menu
     border-right none
     background transparent
-    width 170px
+    width 160px
     &-item
       color #eee
       position relative
@@ -306,7 +306,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
         color #fff
   .el-submenu
     .el-menu-item
-      min-width 166px
+      min-width 100px
       &.is-active
         &:before
           top 16px

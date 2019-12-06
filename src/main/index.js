@@ -162,8 +162,8 @@ const createWindow = () => {
     return
   }
   window = new BrowserWindow({
-    height: 350, // 高
-    width: 300, // 宽
+    height: 650, // 高
+    width: 600, // 宽
     show: false, // 创建后是否显示
     frame: false, // 是否创建frameless窗口。frame这个选项，默认是true。如果选择了false则会创建一个frameless窗口，创建一个没有顶部工具栏、没有border的窗口。这个也是我们在windows系统下自定义顶部栏的基础
     fullscreenable: true, // 是否允许全屏
@@ -228,7 +228,7 @@ const createMiniWidow = () => {
 // todo: 主窗口
 const createSettingWindow = () => {
   const options = {
-    height: 500,
+    height: 600,
     width: 1000,
     show: false,
     frame: true,

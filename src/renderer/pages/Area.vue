@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- 第一列 -->
-    <el-row :gutter="30">
+    <el-row :gutter="20">
       <el-col :xs="10" :sm="10" :md="10">
         <el-autocomplete
         v-model="mapLocation.address"
@@ -13,22 +13,16 @@
         @focus="clearAddress"
       />
       </el-col>
-      <el-col :xs="6" :sm="6" :md="6" v-if="false">
-          <el-radio-group v-model="isCircle">
-            <el-radio-button :label="true">圆形</el-radio-button>
-            <el-radio-button :label="false">矩形</el-radio-button>
-          </el-radio-group>
-      </el-col>
       <el-col :xs="6" :sm="6" :md="6" >
-          <el-input placeholder="半径" v-model="radius" type="NUmber" :max="1000" :min="0" @input.native="changeNumber" @focus="clearRadius">
+          <el-input placeholder="半径(1000以内)" v-model="radius" type="NUmber" :max="1000" :min="0" @input.native="changeNumber" @focus="clearRadius">
             <template slot="append">m</template>
           </el-input>
       </el-col>
-      <el-col :xs="4" :sm="4" :md="4">
-        <el-button type="primary" plain @click="result()" :loading="downloadLoading">Excel</el-button>
+       <el-col :xs="4" :sm="4" :md="4">
+         <upExcel @getInfo='getInfo'></upExcel>
       </el-col>
-      <el-col :xs="4" :sm="4" :md="4" >
-        <el-button type="primary" plain @click="clearResult()" >clear</el-button>
+      <el-col :xs="4" :sm="4" :md="4">
+        <el-button type="primary" plain @click="result()" :loading="downloadLoading">Download</el-button>
       </el-col>
     </el-row>
     <!-- 第二列 -->
@@ -53,32 +47,35 @@
         >
       </el-input>
       <el-button v-else class="button-new-tag" size="small" @click="showInput">+ Keywordd</el-button>
+      <el-button class="button-new-tag" size="small"  @click="clearResult()" >clear</el-button>
       </el-col>
     </el-row>
     <!-- 第三列 -->
     <el-row :gutter="10">
       <el-col :xs="14" :sm="14" :md="14">
-        <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
-      </el-col>
-       <el-col :xs="10" :sm="10" :md="10">
-        <el-card class="box-card">
-        <div slot="header" class="clearfix">
-          <span>已选地址列表</span>
-        </div>
-        <div v-for="(val, key) in options_arr" :key="key"  class="text item">
-          <el-tag type="success" closable @close="handleClose(val[0])" >{{ val[0] }}</el-tag>
-        </div>
-      </el-card>
+          <el-card class="box-card" style="height: 1000px">
+            <div slot="header" class="clearfix">
+              <span>已选地址列表</span>
+            </div>
+            <div v-for="(val, key) in options_arr" :key="key"  class="text item">
+              <el-tag type="success" closable @close="handleClose(val[0])" >{{ val[0] }}</el-tag>
+            </div>
+          </el-card>
        </el-col>
+      <el-col :xs="10" :sm="10" :md="10">
+        <baidu-map class="bm-view" :center="mapCenter" :zoom="mapZoom" :scroll-wheel-zoom="true" ak="baidu-ak" @ready="handlerBMap" />
+      </el-col>  
     </el-row>
   </div>
 </template>
 
 <script>
 import { excel } from '../mixins/excel'
+import upExcel from '../components/upExcel/excelData'
 export default {
   name: 'BaiduMapDemo',
   mixins: [excel],
+  components: { upExcel },
   data () {
     return {
       downloadLoading: false,
@@ -91,7 +88,9 @@ export default {
         coordinate: { lat: 30.598604, lng: 114.311754 }
       },
       options: new Map(), // 地址选项
-      options_arr: []
+      options_arr: [],
+      options_err_arr: [],
+      uploadData: []
     }
   },
   methods: {
@@ -170,11 +169,42 @@ export default {
       this.mapLocation.coordinate = point
       this.makerCenter(point)
       // 添加搜索地址
+      item.value = `${item.value}[lng:${item.point.lng}, lat:${item.point.lat}]`
       if (!this.options.has(item.value) && this.options.size < 11) {
         this.options.set(item.value, item)
         this.options_arr = [...this.options]
         this.clearSearch() // 清除搜索结果
       }
+    },
+    getInfo(data) {
+      var that = this
+      var myGeo = new this.BMap.Geocoder()
+      // 获取上传的excel信息
+      this.uploadData = data
+      for (let elem of this.uploadData.values()) {
+        if (elem['地址'] === undefined || !elem['地址']) {
+          continue
+        }
+        let queryString = elem['地址']
+        myGeo.getPoint(queryString, function (point) {
+          if (point) {
+            let item = { value: `${elem['地址']}[lng:${point.lng}, lat:${point.lat}]`, point: point }
+            if (!that.options.has(item.value)) {
+              that.options.set(item.value, item)
+              that.options_arr.push([item.value, point])
+              that.mapLocation.coordinate = point
+              that.makerCenter(point)
+            }
+          } else {
+            that.options_err_arr.push(`${elem['地址']}[lng:${point.lng}, lat:${point.lat}]`)
+            that.$message({
+              message: '地址：' + elem['地址'] + '解析失败！请输入详细省市信息！',
+              type: 'warning'
+            })
+          }
+        }, this.locationCity)
+      }
+      console.log('address', this.options_arr)
     },
     // 关闭标签
     handleClose(key) {
@@ -186,8 +216,9 @@ export default {
     clearResult() {
       this.options = new Map()
       this.options_arr = []
+      this.options_err_arr = []
       this.radius = 0
-      this.keyword = ['篮球场', '足球场', '羽毛球场']
+      this.keyword = this.keyword
       this.clearSearch()
     },
     // 聚焦清除地址

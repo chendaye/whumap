@@ -7,12 +7,11 @@ export const excel = {
       excel: new Map(), // excel数据
       list: [], // 数组数据
       obj: [], // 数组数据
-      // keyword: ['商场', '超市', '快餐店', '交叉路口'], // 个数或距离，面积
       filename: '',
       autoWidth: true,
       bookType: 'xlsx',
       // 动态关键字
-      keyword: ['超市', '公园', '公交站', '地铁站', '中餐', '酒店'],
+      keyword: ['超市', '公园', '公交站'],
       inputVisible: false,
       inputValue: '',
       header: ['地址', '关键字', '最近距离(米)', '密度(个/平方公里)', '数量'],
