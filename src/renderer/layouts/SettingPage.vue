@@ -29,8 +29,8 @@
           <!-- <el-menu-item index="amap">
             <i class="el-icon-upload"></i>
             <span slot="title">高德地图</span>
-          </el-menu-item> -->
-        </el-menu>
+          </el-menu-item>
+        </el-menu> -->
         <i class="el-icon-info setting-window" @click="openDialog"></i>
       </el-col>
       <el-col
