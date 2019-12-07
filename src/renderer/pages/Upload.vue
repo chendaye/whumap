@@ -204,7 +204,6 @@ export default {
           }
         }, this.locationCity)
       }
-      console.log('address', this.options_arr)
     },
     // 关闭标签
     handleClose(key) {

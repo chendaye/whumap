@@ -1,7 +1,7 @@
 <template>
   <div>
     <input ref="excel-upload-input" class="excel-upload-input" type="file" accept=".xlsx, .xls" @change="handleClick">
-    <el-button :loading="loading" type="success" plain @click="handleUpload">Upload</el-button>
+    <el-button :loading="loading" type="success" plain @click="handleUpload">上传Excel</el-button>
     <!-- <div class="drop" @drop="handleDrop" @dragover="handleDragover" @dragenter="handleDragover">
       Drop excel file here or
       <el-button :loading="loading" style="margin-left:16px;" size="mini" type="primary" @click="handleUpload">
@@ -65,10 +65,6 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$refs['excel-upload-input'].click()
-        this.$message({
-          type: 'success',
-          message: '上传成功!'
-        })
       }).catch(() => {
         this.$message({
           type: 'info',
@@ -93,6 +89,10 @@ export default {
       if (before) {
         this.readerData(rawFile)
       }
+      this.$message({
+        type: 'success',
+        message: '上传成功!'
+      })
     },
     readerData(rawFile) {
       this.loading = true
