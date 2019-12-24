@@ -14,7 +14,7 @@
       />
       </el-col>
       <el-col :xs="6" :sm="6" :md="6" >
-          <el-input placeholder="半径(1000以内)" v-model="radius" type="NUmber" :max="1000" :min="0" @input.native="changeNumber" @focus="clearRadius">
+          <el-input placeholder="半径(2000以内)" v-model="radius" type="NUmber" :max="2000" :min="0" @input.native="changeNumber" @focus="clearRadius">
             <template slot="append">m</template>
           </el-input>
       </el-col>
@@ -238,8 +238,8 @@ export default {
     changeNumber() {
       if (this.radius < 0) {
         this.radius = 0
-      } else if (this.radius > 1000) {
-        this.radius = 1000
+      } else if (this.radius > 2000) {
+        this.radius = 2000
       }
       this.radius = this.radius.replace('-', '')
     }
