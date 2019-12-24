@@ -47,7 +47,6 @@ export default {
     getInfo(data) {
       // 获取上传的excel信息
       this.uploadData = data
-      console.log('上传的信息', this.uploadData)
     },
     async initAMap() {
       try {

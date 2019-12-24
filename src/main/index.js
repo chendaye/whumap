@@ -228,8 +228,8 @@ const createMiniWidow = () => {
 // todo: 主窗口
 const createSettingWindow = () => {
   const options = {
-    height: 600,
-    width: 1000,
+    height: 750,
+    width: 1300,
     show: false,
     frame: true,
     center: true,

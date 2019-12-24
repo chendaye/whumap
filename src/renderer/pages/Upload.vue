@@ -22,7 +22,7 @@
          <upExcel @getInfo='getInfo'></upExcel>
       </el-col>
       <el-col :xs="4" :sm="4" :md="4">
-        <el-button type="primary" plain @click="result()" :loading="downloadLoading">Download</el-button>
+        <el-button type="primary" plain @click="result()" :loading="downloadLoading">下载Excel</el-button>
       </el-col>
     </el-row>
     <!-- 第二列 -->
@@ -53,9 +53,9 @@
     <!-- 第三列 -->
     <el-row :gutter="10">
       <el-col :xs="14" :sm="14" :md="14">
-          <el-card class="box-card" style="height: 1000px">
+          <el-card class="box-card" style="height: auto; min-height:420px">
             <div slot="header" class="clearfix">
-              <span>已选地址列表</span>
+              <span>地址列表</span>
             </div>
             <div v-for="(val, key) in options_arr" :key="key"  class="text item">
               <el-tag type="success" closable @close="handleClose(val[0])" >{{ val[0] }}</el-tag>
@@ -204,7 +204,6 @@ export default {
           }
         }, this.locationCity)
       }
-      console.log('address', this.options_arr)
     },
     // 关闭标签
     handleClose(key) {

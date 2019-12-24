@@ -2,7 +2,7 @@
   <div id="setting-page">
     <div class="fake-title-bar" :class="{ 'darwin': os === 'darwin' }">
       <div class="fake-title-bar__title">
-        WhuMap - {{ version }}
+        WhuMap
       </div>
       <div class="handle-bar" v-if="os !== 'darwin'">
         <i class="el-icon-minus" @click="minimizeWindow"></i>
@@ -11,6 +11,7 @@
       </div>
     </div>
     <el-row style="padding-top: 22px;" class="main-content">
+      <!-- 侧边栏 -->
       <el-col :span="5" class="side-bar-menu">
         <el-menu
           class="picgo-sidebar"
@@ -33,10 +34,11 @@
         </el-menu> 
         <i class="el-icon-info setting-window" @click="openDialog"></i>
       </el-col>
+      <!-- 页面 -->
       <el-col
         :span="19"
         :offset="5"
-        style="height: 428px"
+        style="height: 100%"
         class="main-wrapper"
         :class="{ 'darwin': os === 'darwin' }">
         <transition name="picgo-fade" mode="out-in">
@@ -193,7 +195,7 @@ export default {
   },
   beforeRouteEnter: (to, from, next) => {
     next(vm => {
-      vm.defaultActive = to.name
+      vm.defaultActive = 'area'
     })
   },
   beforeDestroy () {
@@ -266,7 +268,7 @@ $darwinBg = transparentify(#172426, #000, 0.7)
     height calc(100vh - 22px)
     overflow-x hidden
     overflow-y auto
-    width 160px
+    width 120px
     .el-icon-info.setting-window
       position fixed 
       bottom 4px
@@ -311,7 +313,9 @@ $darwinBg = transparentify(#172426, #000, 0.7)
         &:before
           top 16px
   .main-content
+    min-height:650px
     padding-top 22px
+    padding-bottom 2px
     position relative
     z-index 10
   .el-dialog__body 
